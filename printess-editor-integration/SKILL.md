@@ -46,16 +46,16 @@ The implementation is as simple as this:
     })
 </script>
 ```
-
-> **IMPORTANT**
 ---
-The `printessLoader.load()` call returns your interfaces into the editor, `ui` and `api`.
-
-`ui` is used to manipulate the UI of the editor, such as closing and reopening it.
-
-`api` gives you access to template resources, functions and lots of other tools for the editor.
-
-You can find out more on this in the TypeScript API resource and see examples in the Use Cases resource.
+> **IMPORTANT**
+>
+>The `printessLoader.load()` call returns your interfaces into the editor, `ui` and `api`.
+>
+>`ui` is used to manipulate the UI of the editor, such as closing and reopening it.
+>
+>`api` gives you access to template resources, functions and lots of other tools for the editor.
+>
+>You can find out more on this in the TypeScript API resource and see examples in the Use Cases resource.
 ---
 
 
@@ -179,7 +179,7 @@ Alternatively you can set a `shopUserId` to make Printess store the context of t
 If you want to know more concepts in greater detail, there are additional chapters surrounding the Editor integration.
 
 | Name | Location | When to consult |
-|------|-----------------|
+|------|----------|-----------------|
 | [Attach Parameters](../resources/attach-params.md) | If you want to load additional resources or configure the editor on initial load |
 | [Use Cases](../resources/use-cases.md) | If you want to add a new Editor functionality, we might have an example of it already |
 | [TypeScript API](../resources/printess-editor.d.ts) | If you want to add new Editor functionality, but we do not have an example already |
