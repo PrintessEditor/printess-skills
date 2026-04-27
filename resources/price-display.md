@@ -1,8 +1,6 @@
 # Price Display
 The price display feature allows to show important information on a product including price, product name, legal notice as well as the product information via an info icon button. Reduced or special-offer prices are also possible to display.
 
-![Price Display](kb/api-reference/img/priceDisplay.png)
-
 >**Pro Tip:** A working price display code example can be created in every template by using the **Generate Embed Code** function in the editor for every template.
 
 ## Simple Approach
@@ -12,9 +10,9 @@ If you have price relevant form fields set up in your template and are using the
 In order to achieve this, you will need at a callback and an API call.
 There are two callbacks available to notofy you, when a price relevant form field has changed, `formFieldChangedCallback` and `priceChangeCallback`.
 
-::: tip
-You need to update your price in the `priceChangeCallback`, otherwise it will not be displayed correctly.
-:::
+
+> **Important** You need to update your price in the `priceChangeCallback` using `refreshPriceDisplay()`, otherwise it will not be displayed correctly.
+
 
 `formFieldChangedCallback` will trigger, when a price-relevant form field changes and return the form field that has actually changed and the new value.
 This callback will not be triggered when a price-relevant Snippet changes!

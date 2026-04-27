@@ -151,9 +151,9 @@ If you have price relevant form fields set up in your template and are using the
 In order to achieve this, you will need at a callback and an API call.
 There are two callbacks available to notofy you, when a price relevant form field has changed, `formFieldChangedCallback` and `priceChangeCallback`.
 
-::: tip
-You need to update your price in the `priceChangeCallback`, otherwise it will not be displayed correctly.
-:::
+
+You need to update your price in the `priceChangeCallback` using `refreshPriceDisplay()`, otherwise it will not be displayed correctly.
+
 
 `formFieldChangedCallback` will trigger, when a price-relevant form field changes and return the form field that has actually changed and the new value.
 This callback will not be triggered when a price-relevant Snippet changes!
@@ -230,9 +230,8 @@ The body needs to add the preloaded scripts as a script tag:
 </script>
 ```
 
-::: warn
-The URLs of the link inside your `<head>` and the source inside the `<script>` need to match **exactly**.
-:::
+> **Important!** The URLs of the link inside your `<head>` and the source inside the `<script>` need to match **exactly**.
+
 
 
 ## Loading previously uploaded images
@@ -250,11 +249,11 @@ You may call the method with only the `basketId`, in which case only images uplo
 
 Lastly, you may also call the method with only a `userId`, pulling from all images the user uploaded to any project.
 
-::: warn
-Your user IDs need to be **UNIQUE** and **NOT GUESSABLE**, otherwise you risk your users data security.
+>**Important:**
+>Your user IDs need to be **UNIQUE** and **NOT GUESSABLE**, otherwise you risk your users data security.
+>
+>**Avoid plain integer IDs** if you intend to use this feature.
 
-**Avoid plain integer IDs** if you intend to use this feature.
-:::
 
 
 ## Using template scripts through the API

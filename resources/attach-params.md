@@ -3,9 +3,8 @@
 Additionally to the required standard attach parameters **token** and **templateName**, there are other parameters that can change the the behavior and look of your template from within your online store.
 With a few exceptions (e.g. the theme parameter) these are working with the classic iFrame-Ui as well as with the Panel- Ui.
 
-You can find an extensive and always up-to-date list in our [Javascript/Typescript API](https://www.printess.com/js-api), by searching for `interface printessAttachParameters`.
+You can find an extensive and always up-to-date list in our resorce **printess-editor.d.ts**, by searching for `interface printessAttachParameters`.
 
-::: externallink https://www.printess.com/js-api/interfaces/printessAttachParameters.html|The attachParameters in our API Docs
 
 The described parameters are just additional properties that are added to your attach parameter object alongside the templateName and token parameters.
 

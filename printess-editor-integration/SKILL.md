@@ -27,9 +27,8 @@ We have created a CodePen profile to provide you with live examples of various u
 The most basic and straightforward integration of the Panel UI will work like this.
 Printess will automatically determine screen size and device and attach itself in the foreground when loaded.
 
-::: tip
 **Note:** If you don't specify anthing else, the Printess Editor will adapt to the users' browser language.
-:::
+
 
 The implementation is as simple as this:
 ```html
@@ -120,10 +119,9 @@ You will need to style the div that the editor attaches to so the editor will no
 }
 ```
 
-::: tip
 By giving surrounding HTML elements the class `printess-owned`, the Editor will hide them while it is being displayed and show them when it becomes hidden.
 This way your elements and the Editor don't need to use ugly methods such as `z-index` to figure out what should be visible.
-:::
+
 
 ## Required Attach Parameters
 
