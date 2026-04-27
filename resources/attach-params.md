@@ -95,7 +95,7 @@ const printessApi = await printessLoader.load({
 # Setting form field values
 
 Using the "formFields" property, it is possible to preselect one or more specific form field values.
-This is the way to go if you want to prefill form fields with data you collected before loading the editor.
+This is the way to go if you want to prefill form fields with data you collected before loading the editor or need to set a form field value initially for another reason.
 The names must match names you have set in your Printess template.
 
 ```js
