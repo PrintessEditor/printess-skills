@@ -104,7 +104,9 @@ You also can provide a `<div>` for Printess to attach itself to. The following e
 </script>
 ```
 
-You will need to style the div that the editor attaches to so the editor will not claim the whole browser for itself, for example like this:
+> Important:
+>You will need to style the div that the editor attaches to so the editor will not claim the whole browser for itself.
+>If you want to display _anything_ other than the Editor, you **need** to style its container, for example like this:
 
 ``` css
 #printess-editor {
