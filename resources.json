@@ -1,0 +1,21 @@
+{
+    "skills": [
+        {
+            "name": "printess-backend-integration",
+            "resources": []
+        },
+        {
+            "name": "printess-dialog-script",
+            "resources": []
+        },
+        {
+            "name": "printess-editor-integration",
+            "resources": [
+                "attach-params.md",
+                "price-display.md",
+                "use-cases.md",
+                "printess-editor.d.ts"
+            ]
+        }
+    ]
+}
