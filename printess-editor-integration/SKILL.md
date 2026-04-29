@@ -106,6 +106,8 @@ You also can provide a `<div>` for Printess to attach itself to. The following e
 
 > Important:
 >You will need to style the div that the editor attaches to so the editor will not claim the whole browser for itself.
+>We generally recommend implementing the **editor in fullscreen** if possible.
+>If you need to have the editor surrounded by other elements, you need to make sure that they behave consistent to the editor, for example by invoking the same function that handles the `backButtonCallback` when a user navigates away from the editor page.
 >If you want to display _anything_ other than the Editor, you **need** to style its container, for example like this:
 
 ``` css
