@@ -273,6 +273,51 @@ const countThroughApi = () => {
 
 Printess template scripts can have a return value, so naturally the `executeScript` forwards the return value of the script you execute, given the script does have one.
 
+## Opening a dialog
+
+If you need to show a user additional information or take a complex action that cannot be done through the existing Printess UI, you can open a dialog and fill it with your own HTML.
+
+You can achieve this through `openDialog(options: IGenericDialogOptions): Promise<HTMLDivElement>`.
+
+The `IGenericDialogOptions` interface looks like this:
+``` js
+export interface IGenericDialogOptions {
+  callback: () => void,         // Called when the user clicks OK
+  headline: string,             // Headline for the dialog
+  okLabel?: string,             // Custom label text for OK button
+  cancelLabel?: string,         // Custom label text for cancel button
+  message?: string              // Message text for dialog
+  cancelCallback?: () => void   // Called when the user clicks Cancel
+}
+```
+
+The function returns a `<div>` which is the inner element of the created dialog, and you can fill it with your own HTML by setting its `innerHTML`.
+You can also apply inline styles to it, within certain boundaries.
+If you just want to display a message for the user to acknowledge, simply use `message`.
+
+Here you can see how to open a simple dialog with an input:
+
+``` js
+let email = "";
+const onDialogButton = async () => {
+  const dialog = await printess.api.openDialog({
+    callback: () => console.log(email),
+    headline: "Account Data"
+  });
+  dialog.innerHTML = `
+    <div>
+      <label for="save-email">
+        Email:
+      </label>
+      <input name="save-email" type="text" id="save-email">
+    </div>
+  `
+  const input = dialog.querySelector("#save-email");
+  input.addEventListener("change", e => {
+    email = e.target.value;
+  });
+}
+```
 
 ## Retrieve Animation HTML
 
