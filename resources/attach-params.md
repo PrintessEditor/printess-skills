@@ -479,6 +479,14 @@ The Save Button is only visible if you activate it under **Buyer View Appearance
 
 `saveTemplateCallback?: (saveToken: string, type: "save" | "close", thumbnailUrl: string) => void`
 
+>Depending on your shop system, you might need to store more information than just the saveToken in order to load your saved state at a later time.
+>
+>The needed information might contain things like:
+>- Session or User ID
+>- Product name / ID / handle
+>- Selected Product Variant
+>- Available options for editing
+
 #### Load-Callback
 
 This is fired when the user clicks the **Load** button. The Load Button is only visible if you activate it under **Buyer View Appearance** -> **Other Settings** -> **Show Load Button**
