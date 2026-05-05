@@ -3,7 +3,8 @@
         {
             "name": "printess-backend-integration",
             "resources": [
-                "mockup-api.md"
+                "mockup-api.md",
+                "backend-api.json"
             ]
         },
         {

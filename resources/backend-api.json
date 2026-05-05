@@ -1,0 +1,3997 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Printess Public API",
+        "version": "v1"
+    },
+    "paths": {
+        "/directories/load": {
+            "post": {
+                "tags": [
+                    "Directory"
+                ],
+                "summary": "Loads all directories of the current user. (Auth policies: externalDesigner)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDirectoriesDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDirectoriesDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDirectoriesDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/orders/templates/unique": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Load unique template names for the given options. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueTemplateNamesResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/origins/unique": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Load unique origins for the given options. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueOriginsDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueOriginsDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrderUniqueOriginsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueOriginsResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueOriginsResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrderUniqueOriginsResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Load orders based on given options. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrdersDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrdersDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadOrdersDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrdersResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrdersResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadOrdersResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dropship/orders/list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Load dropship orders based on given options. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDropshipOrdersDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDropshipOrdersDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadDropshipOrdersDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dropship/produce": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user_or_dropshipProducer)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DropshipProduceDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Job was successfully enqueued for the backend system.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Job could not be accepted due to insufficient funds.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Job could not be accepted. See return object for more information.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something unknown went wrong! Please try again later or contact Printess."
+                    }
+                }
+            }
+        },
+        "/production/shop/proof": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceJobDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Job was successfully enqueued for the backend system.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Job could not be accepted due to insufficient funds.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Job could not be accepted. See return object for more information.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something unknown went wrong! Please try again later or contact Printess."
+                    }
+                }
+            }
+        },
+        "/production/external": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceJobDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/production/v2/external": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceExternalDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceExternalDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceExternalDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Creates an order without producing anyting. Returns the data in the same format as the form fields uri during a real production call.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProduceExternalResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProduceExternalResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProduceExternalResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/production/produce": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceJobDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Job was successfully enqueued for the backend system.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Job could not be accepted due to insufficient funds.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Job could not be accepted. See return object for more information.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something unknown went wrong! Please try again later or contact Printess."
+                    }
+                }
+            }
+        },
+        "/production/produce/simple": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SimpleProduceJobDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Job was successfully enqueued for the backend system.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Job could not be accepted due to insufficient funds.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Job could not be accepted. See return object for more information.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something unknown went wrong! Please try again later or contact Printess."
+                    }
+                }
+            }
+        },
+        "/order/retry": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RetryOrderDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RetryOrderDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RetryOrderDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Job was successfully enqueued for the backend system.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProducePdfResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/production/status/get": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BackendJobStatus"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BackendJobStatus"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BackendJobStatus"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/production/status/pdf/get": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetStatusDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleBackendJobStatus"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleBackendJobStatus"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimpleBackendJobStatus"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/submission/errors/list": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": "Load submission error based on given options. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoaSubmissionErrorsDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoaSubmissionErrorsDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoaSubmissionErrorsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoadDropshipOrdersResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/production/savetoken/create": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": "Creates a saveToken for the requested configuration. (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "The response containing the saveToken and preview url.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/production/savetoken/create/with/formfields": {
+            "post": {
+                "tags": [
+                    "Production"
+                ],
+                "summary": " (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenWithFormFieldsDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenWithFormFieldsDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProduceSaveTokenWithFormFieldsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "The response containing the saveToken and preview url.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveTokenResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ai/auth/create": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Creates an ai auth key. (Auth policies: service)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAiAuthKeyDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAiAuthKeyDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAiAuthKeyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/saveToken/delete": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Deletes the save token json file. (Auth policies: service)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteSaveTokenDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteSaveTokenDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteSaveTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/shop/template/info": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadShoppingBasketItemDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadShoppingBasketItemDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadShoppingBasketItemDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/savetoken/lifetime/extend": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Extends the lifetime of the saveToken. User uploaded resouces are kept for the set expiration. Additional costs apply for extended lifetime. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PersistShoppingBasketItemV2Dto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PersistShoppingBasketItemV2Dto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PersistShoppingBasketItemV2Dto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/shopintegration/list": {
+            "post": {
+                "tags": [
+                    "ShopIntegration"
+                ],
+                "summary": " (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShopIntegrationQuery"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShopIntegrationQuery"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShopIntegrationQuery"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CustomerShopIntegration"
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CustomerShopIntegration"
+                                    }
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CustomerShopIntegration"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/template/details": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": " (Auth)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateDetailsRequestDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateDetailsRequestDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateDetailsRequestDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Template details.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDetailsResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDetailsResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDetailsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/list": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": " (Auth policies: externalDesigner)",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/templates/user/recent/load": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Loads recently edited templates of the current user. (Auth policies: externalDesigner)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecentUserTemplatesDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecentUserTemplatesDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecentUserTemplatesDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/templates/user/load": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Loads all templates of the current user. (Auth policies: externalDesigner)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadUserTemplatesDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadUserTemplatesDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadUserTemplatesDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserTemplatesDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserTemplatesDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserTemplatesDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/user/shared/load": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Loads templates shared with the current user. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadSharedUserTemplatesDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadSharedUserTemplatesDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoadSharedUserTemplatesDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/template/exists": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Checks for template existance. (Auth policies: externalDesigner)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateExistsDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateExistsDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TemplateExistsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/template/from/saveToken": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Creates a template from an existing save token. (Auth policies: service)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTemplateFromSaveTokenDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTemplateFromSaveTokenDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTemplateFromSaveTokenDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TemplateDto"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/template/formFields/list": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Reads the form fields used by this template. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReadTemplateFormFieldsPublicDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReadTemplateFormFieldsPublicDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReadTemplateFormFieldsPublicDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FormFieldsDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FormFieldsDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FormFieldsDto"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServerResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/saas/mockup/url/generate": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Creates a url to the generated mockup image. The generated image will be deleted after one day. Please make sure to copy it to your storage before. (Auth policies: user)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/saas/mockup/url/create": {
+            "post": {
+                "tags": [
+                    "Templates"
+                ],
+                "summary": "Creates a url to the mockup service. (Auth policies: shop)",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MockupUrlDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AtomyxPostProcessing": {
+                "type": "object",
+                "properties": {
+                    "s": {
+                        "type": "boolean"
+                    },
+                    "e": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "r": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "BackendJobStatistics": {
+                "type": "object",
+                "properties": {
+                    "t": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "p": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "c": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "o": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "d": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "BackendJobStatus": {
+                "type": "object",
+                "properties": {
+                    "jobId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isFinalStatus": {
+                        "type": "boolean"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "enqueuedOn": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "processingOn": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "finishedOn": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "failedOn": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "errorDetails": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "templateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/ProcessResults"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "BaseAccessRight": {
+                "type": "object",
+                "additionalProperties": false
+            },
+            "BaseFrameProperty": {
+                "required": [
+                    "pId"
+                ],
+                "type": "object",
+                "properties": {
+                    "pId": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "BaseScopeAction": {
+                "type": "object",
+                "additionalProperties": false
+            },
+            "CreateAiAuthKeyDto": {
+                "required": [
+                    "accessRights",
+                    "expirationDate"
+                ],
+                "type": "object",
+                "properties": {
+                    "expirationDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "accessRights": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/BaseAccessRight"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CreateTemplateFromSaveTokenDto": {
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name you want to give the new template. In case it exists an error will be thrown."
+                    },
+                    "saveToken": {
+                        "type": "string",
+                        "description": "The save token you want to create a template from.",
+                        "nullable": true
+                    },
+                    "directoryId": {
+                        "type": "integer",
+                        "description": "The directory you want to put the newly created template in. Default is the root directory.",
+                        "format": "int32"
+                    },
+                    "clearBuyerSettings": {
+                        "type": "boolean",
+                        "description": "Remove all buyer side settings from all frames?"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string",
+                        "description": "The thumbnail url you want to set for the template.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CustomerShopIntegration": {
+                "type": "object",
+                "properties": {
+                    "shopDomain": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "shopSystem": {
+                        "$ref": "#/components/schemas/EShopSystem"
+                    },
+                    "shop": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "accessScopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "createdOn": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "initialized": {
+                        "type": "boolean"
+                    },
+                    "installedComponents": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "hookId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "hookSecret": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "metaData": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "nullable": true
+                    },
+                    "nonce": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "requiresAuthentication": {
+                        "type": "boolean"
+                    },
+                    "label": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DeleteSaveTokenDto": {
+                "type": "object",
+                "properties": {
+                    "saveToken": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DistributionFile": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "u": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "i": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DocumentFormFieldsDto": {
+                "type": "object",
+                "properties": {
+                    "documentId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "formFields": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FormFieldDto"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DocumentPriceInfo": {
+                "type": "object",
+                "properties": {
+                    "documentName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentPriceCategory": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentSnippetPriceCategory": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DropshipOrder": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdOn": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "externalOrderId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "orderId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "nonce": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "dropshipperType": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "productDefinitionId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "dropshipDataId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "state": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "trackingId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "trackingType": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "trackingPayload": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "callbackType": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "callbackPayload": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "errorMessage": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "payload": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DropshipProduceDataDto": {
+                "type": "object",
+                "properties": {
+                    "dropshipDataId": {
+                        "type": "integer",
+                        "description": "The dropship data (shipping, address data etc) you want to use for this dropship order.",
+                        "format": "int64"
+                    },
+                    "productDefinitionId": {
+                        "type": "integer",
+                        "description": "The product definition you want to use for dropshipping.",
+                        "format": "int64"
+                    },
+                    "callbackType": {
+                        "type": "integer",
+                        "description": "The callback type you want to use. 0=None, 1=Url, 2=Shopify.",
+                        "format": "int32"
+                    },
+                    "callbackPayload": {
+                        "type": "string",
+                        "description": "Depending in the callbackType you can specify the url or Shopify shop domain.",
+                        "nullable": true
+                    },
+                    "linkedOrderLineItems": {
+                        "type": "integer",
+                        "description": "The amount of line items linked together. If your dropship order constists of 5 line items => enter 5 here.",
+                        "format": "int32"
+                    },
+                    "linkedOrderLineItemsId": {
+                        "type": "string",
+                        "description": "The shared linked id of this order line item. This must match for all line items belonging to the order. A GUID is a good value here.",
+                        "nullable": true
+                    },
+                    "shippingCode": {
+                        "type": "string",
+                        "description": "Optional: A shipping code used for dropship shipments to map to the final shipping provider.",
+                        "nullable": true
+                    },
+                    "shippingTitle": {
+                        "type": "string",
+                        "description": "Optional: A shipping title used for dropship shipments to map to the final shipping provider. The title has lower priority than the shipping code.",
+                        "nullable": true
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "Optional: Dictionary to set specific dropshipper data.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "DropshipProduceDto": {
+                "required": [
+                    "dropship",
+                    "origin",
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "externalOrderId": {
+                        "type": "string",
+                        "description": "The external order id you need to provide when producing jobs. This should link to your customer order somehow. Only used for accounting issues.",
+                        "nullable": true
+                    },
+                    "callbackUrl": {
+                        "type": "string",
+                        "description": "The url which is called back when a job is finished. It will be called in case of error or success. Response codes 200-299 are considered a success.",
+                        "nullable": true
+                    },
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to produce."
+                    },
+                    "contentTemplateName": {
+                        "type": "string",
+                        "description": "The name of the template which you want to take exchange content from.",
+                        "nullable": true
+                    },
+                    "exchangeTemplateName": {
+                        "type": "string",
+                        "description": "Internal use only.",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The origin for this production request. Can be set freely. Used for searching you orders easily."
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Take the published version of the template you want to produce. Only used for direct template productions. SaveTokens are not affected by this property."
+                    },
+                    "distributorName": {
+                        "type": "string",
+                        "description": "Printess can setup special distributors for you. Please contact Printess when you have special distribution needs for production files.",
+                        "nullable": true
+                    },
+                    "meta": {
+                        "type": "string",
+                        "description": "Meta data you want to send with the job. This will be delivered in the callback. ONLY when using the callbackUrl.",
+                        "nullable": true
+                    },
+                    "orderMetaData": {
+                        "type": "string",
+                        "description": "Meta data you want to save for this order.",
+                        "nullable": true
+                    },
+                    "outputFiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OutputFileDto"
+                        },
+                        "description": "The files you want to output for this job. You can output multiple files from one template at once.",
+                        "nullable": true
+                    },
+                    "productType": {
+                        "type": "string",
+                        "description": "The product type for this order. Used for search and payment.",
+                        "nullable": true
+                    },
+                    "vdp": {
+                        "$ref": "#/components/schemas/VdpDto"
+                    },
+                    "outputSettings": {
+                        "$ref": "#/components/schemas/OutputSettingsDto"
+                    },
+                    "mergeTemplates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MergeScopeDto"
+                        },
+                        "description": "This field is only used when you do NOT specify output files. The templates you want to merge.",
+                        "nullable": true
+                    },
+                    "failureRepeats": {
+                        "type": "integer",
+                        "description": "How often should this job retried in case of an error. Maximum possible is 3. Defaults to 1.",
+                        "format": "int32"
+                    },
+                    "copies": {
+                        "type": "integer",
+                        "description": "How many copies of this file are printed.",
+                        "format": "int32"
+                    },
+                    "outputType": {
+                        "type": "string",
+                        "description": "What should be output. Possible options are pdf, png, jpg. Everything else will always result in a pdf file.",
+                        "nullable": true
+                    },
+                    "autoMerge": {
+                        "type": "boolean",
+                        "description": "When producing a design which is connected to a base template, activating this setting will automatically merge them as defined."
+                    },
+                    "atomyxProfile": {
+                        "type": "string",
+                        "description": "The Atomyx profile file path to post process the rendered pdf files. Only works when output type is pdf and you have setup a valid Atomyx access key in the account portal.",
+                        "nullable": true
+                    },
+                    "combinePdfsIntoOne": {
+                        "type": "boolean",
+                        "description": "Combine all pdf output files into one."
+                    },
+                    "printSettingsTemplate": {
+                        "type": "string",
+                        "description": "The name of the print settings template that should be used for the output",
+                        "nullable": true
+                    },
+                    "dropship": {
+                        "$ref": "#/components/schemas/DropshipProduceDataDto"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "EShopSystem": {
+                "enum": [
+                    "Shopify",
+                    "WooCommerce",
+                    "Magento",
+                    "Shopware",
+                    "Headless",
+                    "Unknown"
+                ],
+                "type": "string"
+            },
+            "FormFieldDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "groupName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "value": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "info": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "visibility": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isPriceRelevant": {
+                        "type": "boolean"
+                    },
+                    "dataType": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userInterface": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isMandatory": {
+                        "type": "boolean"
+                    },
+                    "maximumCharacters": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FormFieldEntryDto"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "FormFieldEntryDto": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "The unique key of this form field entry. That's the value you can set for the form field.",
+                        "nullable": true
+                    },
+                    "label": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "FormFieldsDto": {
+                "type": "object",
+                "properties": {
+                    "colorScheme": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "formFields": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FormFieldDto"
+                        },
+                        "nullable": true
+                    },
+                    "documentFormFields": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentFormFieldsDto"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "GetStatusDto": {
+                "required": [
+                    "jobId"
+                ],
+                "type": "object",
+                "properties": {
+                    "jobId": {
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "JsonNode": {
+                "type": "object",
+                "properties": {
+                    "options": {
+                        "$ref": "#/components/schemas/JsonNodeOptions"
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/JsonNode"
+                    },
+                    "root": {
+                        "$ref": "#/components/schemas/JsonNode"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "JsonNodeOptions": {
+                "type": "object",
+                "properties": {
+                    "propertyNameCaseInsensitive": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoaSubmissionErrorsDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "take": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "skip": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadDirectoriesDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadDropshipOrdersDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "externalOrderId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "take": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "skip": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadDropshipOrdersResponseDto": {
+                "type": "object",
+                "properties": {
+                    "orders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DropshipOrder"
+                        },
+                        "nullable": true
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserInfoDto"
+                        },
+                        "nullable": true
+                    },
+                    "productDefinitions": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SimpleProductDefinitionDto"
+                        },
+                        "nullable": true
+                    },
+                    "saasProductDefinitions": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/SimpleProductDefinitionDto"
+                        },
+                        "nullable": true
+                    },
+                    "count": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadOrderUniqueOriginsDto": {
+                "type": "object",
+                "additionalProperties": false
+            },
+            "LoadOrderUniqueOriginsResponseDto": {
+                "type": "object",
+                "properties": {
+                    "origins": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadOrderUniqueTemplateNamesDto": {
+                "type": "object",
+                "properties": {
+                    "origin": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "productType": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadOrderUniqueTemplateNamesResponseDto": {
+                "type": "object",
+                "properties": {
+                    "templateNames": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadOrdersDto": {
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "templateNameOperator": {
+                        "$ref": "#/components/schemas/QueryOperator"
+                    },
+                    "origin": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "productType": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "saveToken": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "externalOrderId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "isFinished": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "isImposed": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "isFailed": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "isTemplateSaveOrder": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "hasExternalOrderId": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "take": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "skip": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "onlyMyOrders": {
+                        "type": "boolean",
+                        "description": "In case your account is pinned to another one, you can set this to true to only see the orders you created.",
+                        "nullable": true
+                    },
+                    "payload": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadOrdersResponseDto": {
+                "type": "object",
+                "properties": {
+                    "orders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderDto"
+                        },
+                        "nullable": true
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserInfoDto"
+                        },
+                        "nullable": true
+                    },
+                    "count": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadSharedUserTemplatesDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "directoryId": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadShoppingBasketItemDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "LoadUserTemplatesDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "directoryId": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "templateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "publishedOnly": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "MergeScopeDto": {
+                "required": [
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to take and merge into the main production document."
+                    },
+                    "documentName": {
+                        "type": "string",
+                        "description": "The name of the document you want to merge.",
+                        "nullable": true
+                    },
+                    "targetDocumentName": {
+                        "type": "string",
+                        "description": "The name of the document you want to merge to in the target template.",
+                        "nullable": true
+                    },
+                    "sourceSpreadIndex": {
+                        "type": "integer",
+                        "description": "The spread you want to start merging from. Optional, defaults to 0.",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "targetSpreadIndex": {
+                        "type": "integer",
+                        "description": "The spread you want to start merging in in the target production document. Optional, defaults to 0.",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "How many spreads to take from the merge document. Optional, defaults to number of spreads of the document.",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Take the published version of the template you want to merge."
+                    },
+                    "transferGlobalFormFieldValues": {
+                        "type": "boolean",
+                        "description": "Transfers the global form field values of this template to the merged one."
+                    },
+                    "templateNameIsSnippetId": {
+                        "type": "boolean",
+                        "description": "The template name is a snippet id. Merges the snippet, instead of a template."
+                    },
+                    "mergeMode": {
+                        "type": "string",
+                        "description": "The merge mode. 'overlay' to keep all layout snippet frames.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false,
+                "description": "Definition for merge templates. You can merge other templates into the main production document."
+            },
+            "MockupUrlDto": {
+                "required": [
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "documentName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "published": {
+                        "type": "boolean"
+                    },
+                    "pagesToSkip": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "maxWidth": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "maxHeight": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "formFields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "nullable": true
+                    },
+                    "merge1": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge1document": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge1targetDocument": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge2": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge2document": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge2targetDocument": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge3": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge3document": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "merge3targetDocument": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "snippetUrl": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "snippetTargetDocumentName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "outputType": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "OrderDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of this order.",
+                        "nullable": true
+                    },
+                    "jobId": {
+                        "type": "string",
+                        "description": "The job id associated to this order.",
+                        "nullable": true
+                    },
+                    "externalOrderId": {
+                        "type": "string",
+                        "description": "The external order id associated to this order.",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "sourceUserId": {
+                        "type": "string",
+                        "description": "The user who issued this order in case it was a pinned user.",
+                        "nullable": true
+                    },
+                    "templateName": {
+                        "type": "string",
+                        "description": "The source template which was used for this order.",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "type": "string",
+                        "description": "The order origin which was set when creating this order.",
+                        "nullable": true
+                    },
+                    "shopSaveId": {
+                        "type": "string",
+                        "description": "The shop save id which was used for this order. Prefix it with 'st:' and set it as template name for the editor and you can load this exact order.",
+                        "nullable": true
+                    },
+                    "productType": {
+                        "type": "string",
+                        "description": "The product type which was set for this order.",
+                        "nullable": true
+                    },
+                    "createdOn": {
+                        "type": "string",
+                        "description": "The date and time (UTC) when this order was created.",
+                        "format": "date-time"
+                    },
+                    "finishedOn": {
+                        "type": "string",
+                        "description": "The date and time (UTC) when this order completed.",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "isFinished": {
+                        "type": "boolean"
+                    },
+                    "isFailure": {
+                        "type": "boolean"
+                    },
+                    "failureDetails": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "usedImposition": {
+                        "type": "boolean",
+                        "description": "The order used an imposition for at least one output file."
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/ProcessResults"
+                    },
+                    "documents": {
+                        "type": "integer",
+                        "description": "The amount of documents produced in this order.",
+                        "format": "int32"
+                    },
+                    "copies": {
+                        "type": "integer",
+                        "description": "The number of copies for this order.",
+                        "format": "int32"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "description": "The amount of pages produced in this order.",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "description": "The combined file size (in bytes) of all output files produced.",
+                        "format": "int64"
+                    },
+                    "usedCredits": {
+                        "type": "number",
+                        "description": "The amount of credits this order costs.",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "metaData": {
+                        "type": "string",
+                        "description": "The meta data you sent in the produce call as orderMetaData.",
+                        "nullable": true
+                    },
+                    "loadableTemplateName": {
+                        "type": "string",
+                        "description": "The template name you should use for loading within the editor. In case it was a shop order you will see the exact design which was produced.",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "usedPublishedVersion": {
+                        "type": "boolean",
+                        "readOnly": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "OutputFileDto": {
+                "type": "object",
+                "properties": {
+                    "outputSettings": {
+                        "$ref": "#/components/schemas/OutputSettingsDto"
+                    },
+                    "vdp": {
+                        "$ref": "#/components/schemas/VdpDto"
+                    },
+                    "documentName": {
+                        "type": "string",
+                        "description": "The name of the document you want to produce.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "OutputInformation": {
+                "type": "object",
+                "properties": {
+                    "hasInvalidGlyph": {
+                        "type": "boolean"
+                    },
+                    "animationSeconds": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "outputWidth": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "outputHeight": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "pageCounts": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "OutputSettingsDto": {
+                "type": "object",
+                "properties": {
+                    "dpi": {
+                        "type": "number",
+                        "description": "Dpi for production.",
+                        "format": "double"
+                    },
+                    "jpegCompression": {
+                        "type": "integer",
+                        "description": "Jpeg compression in case image optimization is used. Only images which are jpeg are using this setting.",
+                        "format": "int32"
+                    },
+                    "optimizeImages": {
+                        "type": "boolean",
+                        "description": "Trades speed for smaller file size. This setting will trim the image to fit the frame exactly."
+                    },
+                    "outputLayers": {
+                        "type": "boolean",
+                        "description": "Output the layers in the pdf file. Defaults to false."
+                    },
+                    "outputSpotColors": {
+                        "type": "boolean",
+                        "description": "Outputs the spot colors with their name. Defaults to true."
+                    },
+                    "skipDefaultImages": {
+                        "type": "boolean",
+                        "description": "Do not output default images."
+                    },
+                    "outputDeviceCmyk": {
+                        "type": "boolean",
+                        "description": "Use device CMYK. NEVER use this option if you don't know what you are doing."
+                    },
+                    "cropToContent": {
+                        "type": "boolean",
+                        "description": "Crop the output to the content. For PDF all boxes (bleed, crop, trim) are set to only contain the content."
+                    },
+                    "taggedPdf": {
+                        "type": "boolean",
+                        "description": "Emit pdf tags for frames or multi line paragraphs which have the 'pdfTag' style property."
+                    },
+                    "fps": {
+                        "type": "number",
+                        "description": "Frames per second when outputting a movie.",
+                        "format": "double"
+                    },
+                    "impositionName": {
+                        "type": "string",
+                        "description": "Name of the imposition.",
+                        "nullable": true
+                    },
+                    "impositionUri": {
+                        "type": "string",
+                        "description": "Url to the imposition file.",
+                        "nullable": true
+                    },
+                    "linearize": {
+                        "type": "boolean",
+                        "description": "Linearize the output pdf. Defaults to false."
+                    },
+                    "proof": {
+                        "type": "boolean",
+                        "description": "Create a proof pdf."
+                    },
+                    "shrink": {
+                        "type": "boolean"
+                    },
+                    "allowJpegConversion": {
+                        "type": "boolean",
+                        "description": "Allow conversion of image formats with transparency to be converted to jpeg in case they don't have any transparency set. Can result in smaller pdf file sizes. Can degrade image quality a bit. Defaults to false."
+                    },
+                    "disableBleed": {
+                        "type": "boolean",
+                        "description": "Output without using bleed settings."
+                    },
+                    "setPageNames": {
+                        "type": "boolean",
+                        "description": "Sets the spread names as labels for pages in the pdf."
+                    },
+                    "outputPdfX4": {
+                        "type": "boolean",
+                        "description": "Output pdf as PDFX/4."
+                    },
+                    "upscale": {
+                        "type": "boolean",
+                        "description": "Enable automatic image upscaling."
+                    },
+                    "width": {
+                        "type": "integer",
+                        "description": "Max width for animation production.",
+                        "format": "int32"
+                    },
+                    "height": {
+                        "type": "integer",
+                        "description": "Max height for animation production.",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PdfFileDto": {
+                "type": "object",
+                "properties": {
+                    "documentName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PersistShoppingBasketItemV2Dto": {
+                "required": [
+                    "expiresOn",
+                    "saveToken"
+                ],
+                "type": "object",
+                "properties": {
+                    "saveToken": {
+                        "type": "string",
+                        "description": "The save token you got back from the JavaScript Printess API. Always starts with 'st:' and the total length is 89.",
+                        "nullable": true
+                    },
+                    "expiresOn": {
+                        "type": "string",
+                        "description": "Expiration date you want to set.",
+                        "format": "date-time"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProcessResults": {
+                "type": "object",
+                "properties": {
+                    "s": {
+                        "$ref": "#/components/schemas/BackendJobStatistics"
+                    },
+                    "r": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "d": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "ayx": {
+                        "$ref": "#/components/schemas/AtomyxPostProcessing"
+                    },
+                    "pages": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "nullable": true
+                    },
+                    "p": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DistributionFile"
+                        },
+                        "nullable": true
+                    },
+                    "meta": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "zip": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "ff": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "ps": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "oi": {
+                        "$ref": "#/components/schemas/OutputInformation"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceExternalDto": {
+                "required": [
+                    "externalOrderId",
+                    "origin",
+                    "saveToken"
+                ],
+                "type": "object",
+                "properties": {
+                    "saveToken": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The saveToken you want to get the details from."
+                    },
+                    "origin": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The origin for this production request. Can be set freely. Used for searching you orders easily."
+                    },
+                    "externalOrderId": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The order id of your system. This should link to your customer order somehow."
+                    },
+                    "productType": {
+                        "type": "string",
+                        "description": "The product type for this order. Used for search and payment.",
+                        "nullable": true
+                    },
+                    "orderMetaData": {
+                        "type": "string",
+                        "description": "Meta data you want to set for this order.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceExternalResponseDataDto": {
+                "type": "object",
+                "properties": {
+                    "environment": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "The environment form fields. Mapped from name to value.",
+                        "nullable": true
+                    },
+                    "environmentDetailed": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "nullable": true
+                        },
+                        "description": "The environment form fields. Mapped from name to details.",
+                        "nullable": true
+                    },
+                    "exchangeIds": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ProduceExternalResponseExchangeIdDataDto"
+                        },
+                        "description": "The exchange ids. Mapped from exchange id to exchange data.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceExternalResponseDto": {
+                "type": "object",
+                "properties": {
+                    "orderId": {
+                        "type": "string",
+                        "description": "The order id for this order.",
+                        "nullable": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ProduceExternalResponseDataDto"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceExternalResponseExchangeIdDataDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "The exchange id type.",
+                        "nullable": true
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {},
+                        "description": "The images in case it is of type 'image'.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceJobDto": {
+                "required": [
+                    "origin",
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "externalOrderId": {
+                        "type": "string",
+                        "description": "The external order id you need to provide when producing jobs. This should link to your customer order somehow. Only used for accounting issues.",
+                        "nullable": true
+                    },
+                    "callbackUrl": {
+                        "type": "string",
+                        "description": "The url which is called back when a job is finished. It will be called in case of error or success. Response codes 200-299 are considered a success.",
+                        "nullable": true
+                    },
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to produce."
+                    },
+                    "contentTemplateName": {
+                        "type": "string",
+                        "description": "The name of the template which you want to take exchange content from.",
+                        "nullable": true
+                    },
+                    "exchangeTemplateName": {
+                        "type": "string",
+                        "description": "Internal use only.",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The origin for this production request. Can be set freely. Used for searching you orders easily."
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Take the published version of the template you want to produce. Only used for direct template productions. SaveTokens are not affected by this property."
+                    },
+                    "distributorName": {
+                        "type": "string",
+                        "description": "Printess can setup special distributors for you. Please contact Printess when you have special distribution needs for production files.",
+                        "nullable": true
+                    },
+                    "meta": {
+                        "type": "string",
+                        "description": "Meta data you want to send with the job. This will be delivered in the callback. ONLY when using the callbackUrl.",
+                        "nullable": true
+                    },
+                    "orderMetaData": {
+                        "type": "string",
+                        "description": "Meta data you want to save for this order.",
+                        "nullable": true
+                    },
+                    "outputFiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OutputFileDto"
+                        },
+                        "description": "The files you want to output for this job. You can output multiple files from one template at once.",
+                        "nullable": true
+                    },
+                    "productType": {
+                        "type": "string",
+                        "description": "The product type for this order. Used for search and payment.",
+                        "nullable": true
+                    },
+                    "vdp": {
+                        "$ref": "#/components/schemas/VdpDto"
+                    },
+                    "outputSettings": {
+                        "$ref": "#/components/schemas/OutputSettingsDto"
+                    },
+                    "mergeTemplates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MergeScopeDto"
+                        },
+                        "description": "This field is only used when you do NOT specify output files. The templates you want to merge.",
+                        "nullable": true
+                    },
+                    "failureRepeats": {
+                        "type": "integer",
+                        "description": "How often should this job retried in case of an error. Maximum possible is 3. Defaults to 1.",
+                        "format": "int32"
+                    },
+                    "copies": {
+                        "type": "integer",
+                        "description": "How many copies of this file are printed.",
+                        "format": "int32"
+                    },
+                    "outputType": {
+                        "type": "string",
+                        "description": "What should be output. Possible options are pdf, png, jpg. Everything else will always result in a pdf file.",
+                        "nullable": true
+                    },
+                    "autoMerge": {
+                        "type": "boolean",
+                        "description": "When producing a design which is connected to a base template, activating this setting will automatically merge them as defined."
+                    },
+                    "atomyxProfile": {
+                        "type": "string",
+                        "description": "The Atomyx profile file path to post process the rendered pdf files. Only works when output type is pdf and you have setup a valid Atomyx access key in the account portal.",
+                        "nullable": true
+                    },
+                    "combinePdfsIntoOne": {
+                        "type": "boolean",
+                        "description": "Combine all pdf output files into one."
+                    },
+                    "printSettingsTemplate": {
+                        "type": "string",
+                        "description": "The name of the print settings template that should be used for the output",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProducePdfResponseDto": {
+                "type": "object",
+                "properties": {
+                    "jobId": {
+                        "type": "string",
+                        "description": "The job id for the enqueued job. You can use it to query the status or track it when using the callbacks.",
+                        "nullable": true
+                    },
+                    "orderId": {
+                        "type": "string",
+                        "description": "The order id for the enqueued job.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceSaveTokenDto": {
+                "required": [
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to produce."
+                    },
+                    "contentTemplateName": {
+                        "type": "string",
+                        "description": "The name of the template which you want to take content from.",
+                        "nullable": true
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Take the published version of the template you want to produce."
+                    },
+                    "autoMerge": {
+                        "type": "boolean",
+                        "description": "When creating a save token for a design which is connected to a base template, activating this setting will automatically merge them."
+                    },
+                    "mergeTemplates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MergeScopeDto"
+                        },
+                        "description": "The templates you want to merge.",
+                        "nullable": true
+                    },
+                    "shopInfo": {
+                        "$ref": "#/components/schemas/ShopInfo"
+                    },
+                    "formFields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "The form fields you want to set.",
+                        "nullable": true
+                    },
+                    "actions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BaseScopeAction"
+                        },
+                        "description": "Actions to execute on the created saveToken.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ProduceSaveTokenWithFormFieldsDto": {
+                "required": [
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to produce."
+                    },
+                    "formFields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "The form fields you want to set.",
+                        "nullable": true
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Take the published version of the template you want to produce."
+                    },
+                    "shopInfo": {
+                        "$ref": "#/components/schemas/ShopInfo"
+                    },
+                    "actions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BaseScopeAction"
+                        },
+                        "description": "Actions to execute on the template.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "QueryOperator": {
+                "enum": [
+                    "Contains",
+                    "StartsWith",
+                    "Equals"
+                ],
+                "type": "string"
+            },
+            "ReadTemplateFormFieldsPublicDto": {
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "type": "string",
+                        "description": "The template name you want to read the form fields from. You can use the id or the name. In case both are specified, the id will be taken.",
+                        "nullable": true
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Use the published version of the source template to read the form fields from."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RecentUserTemplatesDto": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RetryOrderDto": {
+                "type": "object",
+                "properties": {
+                    "orderId": {
+                        "type": "string",
+                        "description": "The orderId to retry.",
+                        "nullable": true
+                    },
+                    "origin": {
+                        "type": "string",
+                        "description": "The new origin to set.",
+                        "nullable": true
+                    },
+                    "reloadPaymentData": {
+                        "type": "boolean",
+                        "description": "Ask the system to reload payment data for the current user."
+                    },
+                    "clearDropshipData": {
+                        "type": "boolean",
+                        "description": "Removes all the dropship information associated with this order."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SaveTokenResponse": {
+                "type": "object",
+                "properties": {
+                    "saveToken": {
+                        "type": "string",
+                        "description": "The save token.",
+                        "nullable": true
+                    },
+                    "thumbnailUrl": {
+                        "type": "string",
+                        "description": "The url to the thumbnail image.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServerResponseDto": {
+                "type": "object",
+                "properties": {
+                    "c": {
+                        "type": "integer",
+                        "description": "The return code of the error.",
+                        "format": "int32"
+                    },
+                    "m": {
+                        "type": "string",
+                        "description": "The clear text message of this error.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ShopInfo": {
+                "type": "object",
+                "properties": {
+                    "basketId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "userDisplay": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ShopIntegrationQuery": {
+                "type": "object",
+                "properties": {
+                    "shopDomain": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SimpleBackendJobStatus": {
+                "type": "object",
+                "properties": {
+                    "isFinalStatus": {
+                        "type": "boolean"
+                    },
+                    "isError": {
+                        "type": "boolean"
+                    },
+                    "errorDetails": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "formFieldsUrl": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "pdfs": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PdfFileDto"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SimpleProduceJobDto": {
+                "required": [
+                    "externalOrderId",
+                    "templateName"
+                ],
+                "type": "object",
+                "properties": {
+                    "templateName": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The name of the template which you want to produce."
+                    },
+                    "externalOrderId": {
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "The external order id you need to provide when producing jobs. This should link to your customer order somehow."
+                    },
+                    "origin": {
+                        "type": "string",
+                        "description": "The origin for this production request. Can be set freely. Used for searching you orders easily.",
+                        "nullable": true
+                    },
+                    "dpi": {
+                        "type": "integer",
+                        "description": "The output dpi.",
+                        "format": "int32"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SimpleProductDefinitionDto": {
+                "type": "object",
+                "properties": {
+                    "display": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "dropshipperId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "TemplateDetailsRequestDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "templateId": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "templateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "usePublishedVersion": {
+                        "type": "boolean",
+                        "description": "Use the published version of the source template."
+                    }
+                },
+                "additionalProperties": false
+            },
+            "TemplateDetailsResponseDto": {
+                "type": "object",
+                "properties": {
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TemplateImage"
+                        },
+                        "nullable": true
+                    },
+                    "documentInfo": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "documentPriceInfo": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentPriceInfo"
+                        },
+                        "nullable": true
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "template": {
+                        "$ref": "#/components/schemas/TemplateDto"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "TemplateDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "n": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "turl": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bg": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "w": {
+                        "type": "boolean"
+                    },
+                    "p": {
+                        "type": "boolean"
+                    },
+                    "d": {
+                        "type": "boolean"
+                    },
+                    "hpv": {
+                        "type": "boolean"
+                    },
+                    "hdv": {
+                        "type": "boolean"
+                    },
+                    "ls": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "directoryId": {
+                        "type": "integer",
+                        "format": "int32",
+                        "nullable": true
+                    },
+                    "tt": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "baseTemplate": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "meta": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "TemplateExistsDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "hasPublishedVersion": {
+                        "type": "boolean"
+                    },
+                    "templateName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "templateNames": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "TemplateImage": {
+                "type": "object",
+                "properties": {
+                    "tid": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "did": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "si": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pi": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "tn": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "t": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "bg": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserInfoDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "d": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "e": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserTemplatesDto": {
+                "type": "object",
+                "properties": {
+                    "uid": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "e": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "ts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TemplateDto"
+                        },
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "VdpDto": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "Data for single record vdp.",
+                        "nullable": true
+                    },
+                    "form": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "description": "Form field values.",
+                        "nullable": true
+                    },
+                    "records": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "Records for multi record vdp.",
+                        "nullable": true
+                    },
+                    "templateStyle": {
+                        "type": "string",
+                        "description": "Template style to append.",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "description": "JWT Authorization header using the Bearer scheme. Please put ONLY the token in here. Do NOT prefix it with 'Bearer '.",
+                "scheme": "Bearer"
+            }
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ]
+}

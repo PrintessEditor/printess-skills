@@ -18,7 +18,7 @@ Save Token a aprox 70 character long hash identifying a cutomer personalized/cut
 Templates have unique template name within one repository independend of the folder they are organized in. Templates have two versions a always existing draft version and if exting a published version which is normally used in shop environments as the live version.
 
 See a full OpenAI definition of the printess API here:
-https://api.printess.com/swagger/public/swagger.json
+./resources/backend-api.json
 
 
 ## Create production orders
