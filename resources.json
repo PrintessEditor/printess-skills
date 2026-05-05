@@ -2,7 +2,9 @@
     "skills": [
         {
             "name": "printess-backend-integration",
-            "resources": []
+            "resources": [
+                "mockup-api.md"
+            ]
         },
         {
             "name": "printess-dialog-script",
@@ -14,7 +16,8 @@
                 "attach-params.md",
                 "price-display.md",
                 "use-cases.md",
-                "printess-editor.d.ts"
+                "printess-editor.d.ts",
+                "mockup-api.md"
             ]
         }
     ]

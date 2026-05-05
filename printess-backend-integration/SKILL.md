@@ -9,9 +9,10 @@ Printess provides an extensive backend API which is used purly server side e.g. 
 - manage templates users and settings
 
 Each backend function will need the service-token for authorization as Bearer in the request header.
+Store the Service Token in a .env file and **never** hard code it into any function.
 
 
-Definitians:
+Definitions:
 Save Token a aprox 70 character long hash identifying a cutomer personalized/cutomized template. This Save token is returned by the Printess 'Buyer-Side' editor callback when the customer presses the 'Add to Basket' button. This buyer side editor is used in the shop system/on or the web page to allow a customer to personalise/customize a template.  The save token can be used everywhere where a template name can be used in the api. Save tokens and their connected resources have a default lifetime of 30 days which can get extended with the api /savetoken/lifetime/extend.
 
 Templates have unique template name within one repository independend of the folder they are organized in. Templates have two versions a always existing draft version and if exting a published version which is normally used in shop environments as the live version.
