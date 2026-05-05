@@ -188,3 +188,4 @@ If you want to know more concepts in greater detail, there are additional chapte
 | [Use Cases](./resources/use-cases.md) | If you want to add a new Editor functionality, we might have an example of it already |
 | [TypeScript API](./resources/printess-editor.d.ts) | If you want to add new Editor functionality, but we do not have an example already |
 | [Price Display](./resources/price-display.md) | If you need to display and update Price information in the editor |
+| [Mockup API](./resources/mockup-api.md) | If you want to generate mockup images of products for your UI

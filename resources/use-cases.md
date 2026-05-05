@@ -319,6 +319,93 @@ const onDialogButton = async () => {
 }
 ```
 
+## Photobook settings
+
+The Photobook comes with a variety of settings which are unique to it, which is why we gave it its own interface to set them: `adjustBook()`.
+This call receives an `iExternalBookSettings` object, which looks like this:
+
+
+``` js
+export type iExternalBookSettings = {
+  /** optional: could be any Length value, like an equation or a fixed value with unit, e.g. `=spine.pages * 0.3mm` or `2cm` */
+  spine?: string,
+  /** optional: `hinge` could be a Length value, like `1cm` or `2inch` or a number in pixel */
+  hinge?: number | string,
+  /** optional: `edge-left-right` could be a Length value, like `1cm` or `2inch` or a number in pixel */
+  edgeX?: number | string,
+  /** optional: `edge-top-bottom` could be a Length value, like `1cm` or `2inch` or a number in pixel */
+  edgeY?: number | string,
+
+  /** optional: `bleed-left-right` could be a Length value, like `1cm` or `2inch` or a number in pixel */
+  bleedX?: number | string,
+  /** optional: `bleed-top-bottom` could be a Length value, like `1cm` or `2inch` or a number in pixel */
+  bleedY?: number | string,
+
+  /** optional: `Minimum Book Pages` set min pages value and auto adds additional pages */
+  minPages?: number,
+  /** optional: `Maximum Book Pages` set max pages and outo removes overidge pages */
+  maxPages?: number,
+
+  /** optional: `Initial Freestyle Photobook Pages` set initial amount of pages the freestyle photobook is created with */
+  initialFreestylePhotobookPages?: number,
+
+  /** optinal: enable / disable layflat mode */
+  layflat?: boolean,
+
+  /** optional: if true, first page and last page become invisible */
+  lockCoverInside?: boolean
+
+  /** optional: determines the min-spreads to add and also if the spread-count needs to be divisible by 2 to be printed  */
+  addSpreads?: 1 | 2
+
+  /** optional: set the book inside pages document imposition by name */
+  bookImposition?: string,
+
+  /** optional: set all cover documents imposition by name */
+  coverImposition?: string
+
+  previewCoverType?: "hard" | "soft";
+
+}
+```
+
+
+>You can also adjust the Photobook settings on load by using the attach parameter `bookSettings`.
+>It also accepts an `iExternalBookSettings` object.
+
+### Spine Width
+
+You can set the book's spine width either in a total value or using a formular.
+
+If you use a formular that depends on other settings, such as form fields (e.g. PAGE_COUNT), you need to make sure to call `adjustBook()` whenever one of the form fields changes.
+
+### Hinge Length
+
+You can set the length of your books hinge, for example when your cover material changes and you need to adjust the books hinge to accomodate the material.
+
+### Edges
+
+You can set outside edges of spreads through `edgeX` (horizontal) and `edgeY` (vertical).
+
+### Page Number limits
+
+A change in e.g. material might lead to different amounts of page limits, which you can adjust using `minPages` and `maxPages`.
+
+>If you increase the value for `minPages`, it makes sense to check the current `PAGE_COUNT` and if it is lower than the new minimum, set it to the new value in the same action.
+>This prevents the user from having to add pages and spares them a warning that does not need their input to be fixed.
+
+
+### Initial Page Count
+
+The option `initialFreestylePhotobookPages` **only** applies when the bookSettings are used for **initial loading** through the attach parameter.
+It is also only applicable to **Freestyle** editing, because it circumvents some of the Magic in Magic Photobooks, namely adjusting the page count dynamically depending on the number of images that were provided by the user.
+
+It sets the initial page count of the photobook, **overriding** your photobook theme setting.
+
+### Lock Cover Inside
+
+This setting will remove the single pages from the **Inside Pages** Document - for example if it will be produced with a flush binding.
+
 ## Retrieve Animation HTML
 
 You can get animations you created as HTML to easily integrate them into your website through the `getAnimationHtmlAsString()` method, which responds with an object containing `pxWidth`, `pxHeight` and `data`, the latter being the HTML string.

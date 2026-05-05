@@ -578,3 +578,7 @@ export interface iMakeData {
 If you need a higher resolution thumbnail for an item in the shopping cart, you can change the maximum size with the attach parameters `basketThumbnailMaxHeight: number` and `basketThumbnailMaxWidth: number`.
 They both take a number up to 1000.
 
+# Photobook Settings
+
+You can adjust the settings of your Photobook on initial load through the `bookSettings` attach parameter.
+It works the same way as the `adjustBook()` API method documented in the [Use Cases resource](.resources/use-cases.md).
