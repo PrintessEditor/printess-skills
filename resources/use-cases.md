@@ -239,7 +239,7 @@ The body needs to add the preloaded scripts as a script tag:
 If your users want to use images that they uploaded earlier or in a different project, you can load up to 50 images through the API method `importUserUploadedImages()`.
 This method accepts up to two parameters, `shopUserId` and `basketId`, both being optional.
 
-Note that user uploaded images are only kept for as long as the latest [saveToken](#save-token-settings) using them has been generated.
+Note that user uploaded images are only kept for as long as the latest saveToken using them has been generated.
 
 `printess.api.importUserUploadedImages("unqiue-user-id-or-guid", "unique-per-session-guid");`
 
@@ -258,7 +258,7 @@ Lastly, you may also call the method with only a `userId`, pulling from all imag
 
 ## Using template scripts through the API
 
-You can set up your templates with great functionalities using [template scripts](#template-scripts), and setting triggers to execute them throughout the template.
+You can set up your templates with great functionalities using template scripts, and setting triggers to execute them throughout the template.
 However, you can also execute them with the api function `executeScript(scriptName: string, args: string[]): string | Promise<string>`.
 
 Note, that neither parameter of the function is optional, so if your script does not need any parameters, you will have to set the `args` to `[]`, as we did in our example code:

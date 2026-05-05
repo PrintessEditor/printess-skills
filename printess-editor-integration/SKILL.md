@@ -14,7 +14,7 @@ The following chapter will not only teach you how to implement these simple tech
 The Panel-UI is web-component base and very easy to work with for developers. You get full control over the Printess Editor through its API.
 You can set the initial state of your Editor through the attach parameters, listen to events in with callbacks and manipulate the live state with more API methods.
 
-The Panel-UI also offers much more customization options. You can create themes and remove or move every panel in its position through the [Theme Manager](#buyer-side-ui).
+The Panel-UI also offers much more customization options. You can create themes and remove or move every panel in its position through the Theme Manager.
 
 ## Getting Started
 
