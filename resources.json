@@ -18,7 +18,9 @@
                 "price-display.md",
                 "use-cases.md",
                 "printess-editor.d.ts",
-                "mockup-api.md"
+                "mockup-api.md",
+                "slim-ui.md",
+                "slim-ui.d.ts"
             ]
         }
     ]
