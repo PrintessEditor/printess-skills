@@ -182,10 +182,12 @@ Alternatively you can set a `shopUserId` to make Printess store the context of t
 
 If you want to know more concepts in greater detail, there are additional chapters surrounding the Editor integration.
 
-| Name | Location | When to consult |
-|------|----------|-----------------|
+| Name | When to consult |
+|------|-----------------|
 | [Attach Parameters](./resources/attach-params.md) | If you want to load additional resources or configure the editor on initial load |
 | [Use Cases](./resources/use-cases.md) | If you want to add a new Editor functionality, we might have an example of it already |
 | [TypeScript API](./resources/printess-editor.d.ts) | If you want to add new Editor functionality, but we do not have an example already |
 | [Price Display](./resources/price-display.md) | If you need to display and update Price information in the editor |
 | [Mockup API](./resources/mockup-api.md) | If you want to generate mockup images of products for your UI
+| [SlimUI](./resources/slim-ui.md) | If you want a lightweight integration that lacks some features |
+| [SlimUI API reference](./resources/slim-ui.d.ts) | If you need specific features for the Slim UI |

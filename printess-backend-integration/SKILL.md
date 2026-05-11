@@ -181,20 +181,22 @@ In a produce call additional optional variable info can get submitted:
 
 ``` json
 "vdp": {
-        "form": {
-          "additionalProp1": "string",
-          "additionalProp2": "string",
-          "additionalProp3": "string"
-        },
-        "records": [
-          {
-            "additionalProp1": "string",
-            "additionalProp2": "string",
-            "additionalProp3": "string"
-          }
-        ],
-        "templateStyle": "string"
+  "form":
+    {
+      "formFieldName": "formFieldValue",
+      "DOCUMENT_SIZE": "21x29.7",
+      "name": "John Doe"
+    },
+  "records":
+    [
+      {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
       }
+    ],
+    "templateStyle": "string"
+  }
 ```
 In the form section so called 'late binding' form field values can get injected into a template/saveToken e.g. the `orderID` from the Shop system needs to be printed/put into a barcode of the template. This `orderID` only exists after editing and checkout.
 but if the document contains a Form Field receiving this data it can still be on the final print piece by supplieing its name and value here.
