@@ -18,8 +18,13 @@
                 "price-display.md",
                 "use-cases.md",
                 "printess-editor.d.ts",
-                "mockup-api.md",
-                "slim-ui.md",
+                "mockup-api.md"
+            ]
+        },
+        {
+            "name": "printess-slim-integration",
+            "resources": [
+                "printess-editor.d.ts",
                 "slim-ui.d.ts"
             ]
         }
