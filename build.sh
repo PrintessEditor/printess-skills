@@ -31,4 +31,16 @@ for skill in data["skills"]:
         os.makedirs(res_out, exist_ok=True)
         for file in resources:
             shutil.copy(os.path.join(src, "resources", file), os.path.join(res_out, file))
+
+import zipfile
+
+zip_path = os.path.join(dist, "printess-integration-skills.zip")
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+    for root, dirs, files in os.walk(dist):
+        for file in files:
+            full_path = os.path.join(root, file)
+            arcname = os.path.relpath(full_path, dist)
+            if arcname == "printess-integration-skills.zip":
+                continue
+            zf.write(full_path, arcname)
 EOF
