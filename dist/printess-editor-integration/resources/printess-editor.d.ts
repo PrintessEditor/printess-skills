@@ -1,3 +1,5 @@
+import { TemplateImportOptions, TemplateImportTask } from "https://editor.printess.com/printess-editor/template-import-interfaces.d.ts"
+
 /**
  * Main call to attach the Printess to div-element of your choice.
  * In ```printessAttachParameters``` you can pass authorization, template-name and other parameters.
@@ -50,6 +52,161 @@ interface iRect {
 }
 
 
+/*
+************** NEW GENERATE AI IMAGE INTERFACES ************
+*/
+
+export type iExternalGenImageModel =
+    | ImgModel_Sdxl
+    | ImgModel_FluxSchnell
+    | ImgModel_FluxDev
+    | ImgModel_FluxPro
+    | ImgModel_FluxUltra
+    | ImgModel_FluxProKontextEdit
+    | ImgModel_Flux2Klein4BEdit
+    | ImgModel_NanoBanana
+    | ImgModel_NanoBananaEdit
+    | ImgModel_NanoBananaPro
+    | ImgModel_NanoBananaProEdit
+    | ImgModel_NanoBanana2
+    | ImgModel_NanoBanana2Edit
+    | ImgModel_GptImage1
+    | ImgModel_GptImage1Edit
+    | ImgModel_GptImage1_5
+    | ImgModel_GptImage1_5Edit
+    | ImgModel_GptImage2
+    | ImgModel_GptImage2Edit
+
+export type iExternalGenImageFollowUpAction = "remove-background" | "assign-to-frame"
+
+export interface ImgModel_Sdxl {
+    model: "SDXL"
+    prompt: string,
+    negativePrompt?: string,
+}
+
+export interface ImgModel_FluxSchnell {
+    model: "FluxSchnell"
+    prompt: string,
+}
+
+export interface ImgModel_FluxDev {
+    model: "FluxDev"
+    prompt: string,
+}
+
+// flux-2-pro
+export interface ImgModel_FluxPro {
+    model: "FluxPro"
+    prompt: string,
+}
+
+// flux-pro/v1.1-ultra
+export interface ImgModel_FluxUltra {
+    model: "FluxUltra"
+    prompt: string,
+}
+
+export interface ImgModel_FluxProKontextEdit {
+    model: "FluxProKontextEdit"
+    prompt: string,
+    inputImageUrl: string
+    enhancePrompt?: boolean,
+}
+
+export interface ImgModel_Flux2Klein4BEdit {
+    model: "Flux2Klein4BEdit"
+    prompt: string,
+    inputImageUrls: string[]
+}
+
+export interface ImgModel_NanoBanana {
+    model: "NanoBanana"
+    prompt: string
+}
+
+export interface ImgModel_NanoBananaEdit {
+    model: "NanoBananaEdit"
+    prompt: string;
+    inputImageUrls: string[]
+}
+
+export interface ImgModel_NanoBananaPro {
+    model: "NanoBananaPro"
+    prompt: string
+    resolution?: "1K" | "2K" | "4K"
+}
+
+export interface ImgModel_NanoBananaProEdit {
+    model: "NanoBananaProEdit"
+    prompt: string;
+    inputImageUrls: string[]
+    resolution?: "1K" | "2K" | "4K"
+}
+
+export interface ImgModel_NanoBanana2 {
+    model: "NanoBanana2"
+    prompt: string
+    resolution?: "0.5K" | "1K" | "2K" | "4K"
+}
+
+export interface ImgModel_NanoBanana2Edit {
+    model: "NanoBanana2Edit"
+    prompt: string;
+    inputImageUrls: string[]
+    resolution?: "0.5K" | "1K" | "2K" | "4K"
+}
+
+export interface ImgModel_GptImage1 {
+    model: "GptImage1"
+    prompt: string;
+    quality?: "low" | "medium" | "high"
+    background?: "transparent" | "opaque" | "auto"
+}
+
+export interface ImgModel_GptImage1Edit {
+    model: "GptImage1Edit"
+    prompt: string;
+    inputImageUrls: string[]
+    quality?: "low" | "medium" | "high"
+    background?: "transparent" | "opaque" | "auto"
+}
+
+export interface ImgModel_GptImage1_5 {
+    model: "GptImage1_5"
+    prompt: string;
+    quality?: "low" | "medium" | "high"
+    background?: "transparent" | "opaque" | "auto"
+}
+
+export interface ImgModel_GptImage1_5Edit {
+    model: "GptImage1_5Edit"
+    prompt: string;
+    inputImageUrls: string[]
+    quality?: "low" | "medium" | "high"
+    background?: "transparent" | "opaque" | "auto"
+}
+
+export interface ImgModel_GptImage2 {
+    model: "GptImage2"
+    prompt: string;
+    quality?: "low" | "medium" | "high"
+}
+
+export interface ImgModel_GptImage2Edit {
+    model: "GptImage2Edit"
+    prompt: string;
+    inputImageUrls: string[]
+    quality?: "low" | "medium" | "high"
+}
+
+
+
+
+
+
+
+
 export type AiTextEditOptionAllow = "allowAiTextRewrite" | "allowAiTextFixSpelling" | "allowAiTextAddMoreText" | "allowAiTextShortenText" | "allowAiTextChangeWritingStyle" | "allowAiTextGenerateQuiz";
 
 
@@ -100,6 +257,8 @@ interface iBcBaseTheme {
     disableBasketButtonOnError: boolean,
     photoAnalysingAnimationLottieUrl: string,
     photoUploadPlaceholderUrl: string,
+    photoPrintessMakeWizzardBackdropUrl: string,
+    photoMagicPbWizzardBackdropUrl: string,
     photoAiDesignBookUrl: string,
     photoFreestyleBookUrl: string,
     photoBookCreationUrl: string
@@ -176,11 +335,18 @@ export type formFieldListEntry = {
 }
 
 export type iExternalButton = {
+    /** only-image-upload hides all other upload buttons */
     location: "button-bar" | "image-upload" | "only-image-upload",
     label: string,
+    hint?: string,
     icon?: iconName,
+    /** only takes effect if no label is ste. "large" is default */
+    iconSize?: "small" | "large",
     color: "primary" | "secondary",
     outline: "solid" | "outline",
+    /** Where is the button is shown, default is everywhere */
+    where?: "desktop" | "mobile",
+    /** Callback executed on button click */
     clickCallback: () => any
 }
 
@@ -216,6 +382,9 @@ export interface iPrintessComponent {
     show(): void,
     writeSetting(key: iPanelSettingsKey, value: string),
     openGenericDialog(options: IGenericDialogOptions): Promise<HTMLDivElement>,
+    closeGenericDialog(): void,
+    disableGenericDialogButtons(),
+    enableGenericDialogButtons(),
     selectMenuKeyword(keyword: string): void
     clearLayoutSnippetCache(): void
     closePropertiesOverlay(): void
@@ -225,6 +394,9 @@ export interface iPrintessComponent {
     loadTheme(themeName: string)
     currentTheme(): string
     isFullyLoaded(): boolean
+    setIsSinglePhotoDistributionInProgress(value: boolean);
+    selectTab(tab: "#NONE" | "#LAYOUTS" | "#PHOTOS" | "#THEME" | "#PAGES" | "#ADD-TEXT" | "#ADD-IMAGE" |
+        "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2" | string): void
 }
 
 
@@ -461,9 +633,15 @@ export interface printessCallbacks {
 
     /**
      * Provide a callback function which is called when the buyer presses the [Save] button
+     * Information about the display name of the product is required
+     */
+    getShopProjectDisplayNameCallback?: (() => Promise<string>),
+
+    /**
+     * Provide a callback function which is called when the buyer presses the [Save] button
      * Information about the shopData of the user is provided
      */
-    getShopSavedDataCallback?: ((shopData: IShopData) => void),
+    getShopSavedDataCallback?: ((shopData: IShopDataProjectName) => void),
 
     /**
      * Provide a callback function which is called when the buyer presses the [Save] button
@@ -503,17 +681,29 @@ export interface printessCallbacks {
     /**
      * Triggered when a call using AI credits is made.
      * Possible ai parameter values are:
-     * "upscale", "nsfw", "remove background", "segment face", "segment anything", "countour", "face swap", "text generation",
+     * "upscale", "upscale (CutoutPro)", "nsfw", "remove background", "remove background (CutoutPro)", "countour", "face swap", "text generation",
+     * "Segment Anything", "Segment Anything 3",
+     * "segment face", "segment face (CutoutPro)",
+     * "GPT Image 1", "GPT ImageEdit",
      * "OpenAi Image Edit - low", "OpenAi Image Edit - medium", "OpenAi Image Edit - high",
-     * "Nano Banana", "Nano Banana Prop",
-     * "SDXL", "Flux Ultra", "Flux Pro", "Flux Dev", "Flux Schnell", "GPT Image 1", "GPT ImageEdit"
+     * "GPT Image 1.5 - low", "GPT Image 1.5 - medium", "GPT Image 1.5 - high",
+     * "GPT Image 2 - low", "GPT Image 2 - medium", "GPT Image 2 - high",
+     * "Nano Banana",
+     * "Nano Banana Pro", "Nano Banana Pro - 2K", "Nano Banana Pro - 4K",
+     * "Nano Banana 2 - 0.5K", "Nano Banana 2", "Nano Banana 2 - 2K", "Nano Banana 2 - 4K",
+     * "SDXL", "Flux Ultra", "Flux Pro", "Flux Dev", "Flux Schnell", "Flux 2 Klein 4B", "Flux Pro Kontext"
      */
     onAiUsageCallback?: (ai: string, credits: number) => void
+
+    /**
+     * Triggered when the user changes a Tab
+     * tabId can have this values: "#NONE" | "#LAYOUTS" | "#PHOTOS" | "#THEME" | "#PAGES" | "#ADD-TEXT" | "#ADD-IMAGE" | "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2" | string;
+     */
+    uiTabChangeCallback?: externalTabChangeCallback
 }
 
 
 export interface iMakeData {
-    //shopUserId
     businessName: string,
     businessType: string,
     valueProposition: string,
@@ -524,8 +714,7 @@ export interface iMakeData {
     tel: string,
     addressLine1: string,
     addressLine2: string,
-    addressLine3: string,
-    addressLine4: string,
+    addressLine3: string
 }
 
 export interface printessAttachParameters extends printessCallbacks {
@@ -728,6 +917,11 @@ export interface printessAttachParameters extends printessCallbacks {
     bookInsidePages?: number;
 
     /**
+     * You can pass a full set or some book settings on attach
+     */
+    bookSettings?: iExternalBookSettings
+
+    /**
      * The initial form fields you want to fill.
      */
     formFields: Array<iFormFieldNameValue>;
@@ -768,6 +962,7 @@ export interface printessAttachParameters extends printessCallbacks {
 
     /** only for internal debugging  */
     useBCUILocalCode: boolean
+    useLocalBuyerJs: boolean
 
     /** optional name of sort index  */
     sortIndex?: string;
@@ -901,9 +1096,23 @@ export interface printessAttachParameters extends printessCallbacks {
  */
 export interface iPrintessApi {
 
-    /** retrieves root path for images */
+    /**
+     * retrieves root path for images
+     * #ai-api
+     */
     getResourcePath(): string;
 
+    /**
+      * retrieves any element inside the printess shadow root
+      * In script Dialogs ONLY USE this method to find your Elements
+     * #ai-api
+     */
+    querySelector(selectors: string): HTMLElement | null
+
+    /**
+     * retrieves the current shop token
+     * #ai-api
+     */
     shopToken(): string;
 
     /**
@@ -991,6 +1200,7 @@ export interface iPrintessApi {
 
     /**
      * Centers the current spread in the printess view container
+     * #ai-api
      */
     centerSpreadInView(part?: "entire" | "left-page" | "right-page"): void
 
@@ -1124,9 +1334,14 @@ export interface iPrintessApi {
     isShopUserLoggedInCallback(): null | (() => Promise<boolean>);
 
     /**
+     * Returns the display name callback you have set in `attachPrintess()`
+     */
+    getShopProjectDisplayNameCallback(): null | (() => Promise<string>);
+
+    /**
      * Returns the shop saved data callback you have set in `attachPrintess()`
      */
-    getShopSavedDataCallback(): null | ((shopData: IShopData) => void);
+    getShopSavedDataCallback(): null | ((shopData: IShopDataProjectName) => void);
 
     /**
      * Returns the shop login callback you have set in `attachPrintess()`
@@ -1137,6 +1352,11 @@ export interface iPrintessApi {
       * Returns the `loadTemplateButtonCallback` you have set in `attachPrintess()`
       */
     getLoadTemplateButtonCallback(): null | (() => void);
+
+    /**
+     *  Used by panel-ui to call an existing `onTabChanged` script (event)
+     */
+    raiseTabChangeEvent(tabId: string): void
 
     /**
      * Returns the Designer Side Aspect Control
@@ -1164,7 +1384,7 @@ export interface iPrintessApi {
     rotateSelection(counterClockwise: boolean): boolean
 
     /**
-     * For a11y, rotate selected frame clockwise or counter clockwise
+     * For a11y, resize selected frame
      */
     resizeSelection(dimension: "height" | "width", mode: "grow" | "shrink"): boolean
 
@@ -1190,35 +1410,42 @@ export interface iPrintessApi {
 
     /**
      * Clears current printess frames selection and shows document-wide properties like form fields.
+     * #ai-api
      */
     clearSelection(): Promise<void>;
 
     /**
      * Clears current printess frames selection only if active and does not re-center the spread
+     * #ai-api
      */
     clearSelectionKeepZoom(): Promise<void>;
 
     /**
      * Forces selection change callback against buyer side ui
+     * #ai-api
      */
     fireSelectionChangeCallback(forceInLegacyUi?: boolean): Promise<void>;
 
     /**
      * Deletes all selected frames which are allowed to be removed by the buyer
+     * #ai-api
      */
     deleteSelectedFrames(): Promise<boolean>;
 
     /**
      * Select frame by propertyId. Fires a subsequent selection changed callback.
+     * #ai-api
      */
     selectFrames(propertyId: string): Promise<void>;
 
     /**
      * Select frames by class name. Fires a subsequent selection changed callback.
+     * #ai-api
      */
     selectFramesByClass(className: string): Promise<void>;
 
     /**
+     * @deprecated WAS A TYPO IN THE NAME
      * Assign a specified image to frames. The image is selected by id. You can specify the search scope where to look for frames.
     * @param imageId The id of the image you want to assign.
     * @param className The class name to search for in frames.
@@ -1230,20 +1457,90 @@ export interface iPrintessApi {
     assingImageByIdToFramesWithClass(imageId: string, className: string, searchScope: "spread" | "document" | "template"): Promise<void>;
 
     /**
+     * Assign a specified image to frames. The image is selected by id. You can specify the search scope where to look for frames.
+    * @param imageId The id of the image you want to assign.
+    * @param className The class name to search for in frames.
+    * @param searchScope The scope to search frames in.
+    * "spread" only looks for matching frames on the currently visible spread.
+    * "document" only looks for matching frames on the currently visible document.
+    * "template" looks for matching frames in the whole template.
+    * #ai-api
+     */
+    assignImageByIdToFramesWithClass(imageId: string, className: string, searchScope: "spread" | "document" | "template"): Promise<void>;
+
+    /**
+     * Assign a specified image to frames. The image is selected by id. You can specify the search scope where to look for frames.
+    * @param imageId The id of the image you want to assign.
+    * @param frameNameOrTitle The JsName or Title of the frame
+    * #ai-api
+     */
+    assignImageByIdToFrameByNameOrTitle(imageId: string, frameNameOrTitle: string): Promise<void>
+
+
+    /**
      * Returns first iExternalImage found for class name
      * @param className
+     * #ai-api
      */
     getImageNameByClassName(className: string): iExternalImage & { placement: "fit" | "fill" } | null
 
     /**
+     * Returns first iExternalImage found for class name
+     * @param className
+     * #ai-api
+     */
+    getImageByClassName(className: string): iExternalImage & { placement: "fit" | "fill" } | null
+
+    /**
+     * Returns first iExternalImage found for frame jsName or Title
+     * @param frameNameOrTitle jaName or Title of a frame. JsName is checked first.
+     * #ai-api
+     */
+    getImageByFrameName(frameNameOrTitle: string): iExternalImage & { placement: "fit" | "fill" } | null
+
+
+    /**
+     * Returns image cluster for all spreads of a document with image Id and thumbUrl
+     * @param docId The Id of the document for which to get the images per spread
+     * #ai-api
+     */
+    getImagesBySpread(docId: string): { spreadId: string; images: { imageId: string; thumbUrl: string; }[] }[] | null
+
+    /**
+     * Goes to the spread where the selected image is placed
+     * #ai-api
+     */
+    goToImageInBook(imageId: string): void
+
+    /**
      * Looks up image by name - case insensitive
+     * #ai-api
      */
     getImageByName(name: string): iExternalImage | null
 
     /**
-     * Gets the geometry of the current selected frame or frame-group
-     * Return null of no frame is selected
+     * Gets the geometry of a specific frame looked up by name or title.
+     * Returns null if no frame is selected
+     * #ai-api
      */
+    getFramePositionByName(frameNameOrTitle: string): {
+        left: number,
+        top: number,
+        width: number,
+        height: number,
+        anchorX: "left" | "center" | "right",
+        anchorY: "top" | "middle" | "bottom",
+        rotation: number,
+        rotationPositionX: number,
+        rotationPositionY: number,
+        containerPosition: { left: number, top: number, width: number, height: number }
+    } | null
+
+    /**
+      * Gets the geometry of the current selected frame or frame-group
+      * Returns null if no frame is selected
+      * #ai-api
+      */
     getSelectionPosition(): {
         left: number,
         top: number,
@@ -1267,6 +1564,7 @@ export interface iPrintessApi {
     pos.left += 50;
     await api.transformSelection(pos);
      * ```
+     * #ai-api
      */
     transformSelection(position: {
         left?: number,
@@ -1283,6 +1581,7 @@ export interface iPrintessApi {
     /**
      * A single frame with "name" will be positioned depending
      * on the px position values you provide. (Just specify only the values you want to modify)
+     * #ai-api
      */
     transformFrame(o: {
         name: string,
@@ -1492,11 +1791,13 @@ export interface iPrintessApi {
     /**
      * Returns information about all spreads of ALL buyer-editable documents
      * @param applyLockCoverInside (default is false) If set to "true" and the document has "lockCoverInside" enabled, the call returns the printed amount of spreads and pages
+     * #ai-api
      */
     getAllDocsAndSpreads(applyLockCoverInside?: boolean): Array<iExternalDocAndSpreadInfo>;
 
     /**
      * Returns total number of spreads (not pages)
+     * #ai-api
      */
     spreadCount(): number
 
@@ -1521,43 +1822,51 @@ export interface iPrintessApi {
 
 
     /**
+     * Returns true if any document has buyer text or image edits
+     */
+    hasBuyerContentEditsInAnyDocumentOrFormField(): boolean
+
+    /**
      * Returns only false if property refers to a formfield which is not visible, because it doesn' match a specific condition.
      * @param propertyId ID of property to check
+     * #ai-api
      */
     isPropertyVisible(propertyId: string, wasVisibleBefore?: boolean): boolean
 
     /**
-     * Returns all available properties in teh current document
+     * Returns all available properties in the current document
+     * #ai-api
      */
     getAllProperties(): Promise<Array<Array<iExternalProperty>>>;
 
     /**
      * Returns the name of a form field if property-id points to an existing form field
      * @param properyId External Property ID
+     * #ai-api
      */
     getFormFieldNameByExternalPropertyId(properyId: string): string | null
 
     /**
      * Runs a form field script, property-id must point to form field.
      */
-    executeFormFieldScript(propertyId: string): Promise<void>
+    executeFormFieldScript(propertyId: string): Promise<string>
 
     /**
      * Returns a list of all available properties on a specific spread
      * @param spreadId
+     * #ai-api
      */
     getAllPropertiesBySpreadId(spreadId: string): Promise<Array<Array<iExternalProperty>>>;
 
 
     /**
     * Returns a list of all required properties (async)
-    * @param spreadId
+     * #ai-api
     */
     getAllRequiredProperties(): Promise<Array<Array<iExternalProperty>>>;
 
     /**
       * Returns a list of all required properties (sync)
-      * @param spreadId
       */
     getAllRequiredPropertiesSync(): Array<Array<iExternalProperty>>;
 
@@ -1576,8 +1885,10 @@ export interface iPrintessApi {
     /**
     * Returns a list of all required properties on a specific spread (async)
     * @param spreadId
+     * #ai-api
     */
     getAllRequiredPropertiesBySpreadId(spreadId: string): Promise<Array<Array<iExternalProperty>>>;
+
     /**
      * Returns a list of all required properties on a specific spread (sync)
      * @param spreadId
@@ -1653,6 +1964,7 @@ export interface iPrintessApi {
      * Creates a new cropped image and assigns it to the passed form-field. Takes the currently assigned image as master
      * @param propertyId id of a form-field-property (type of image-id) pointing to a valid image
      * @param box all box coordinates are expected to be in the range of 0 to 1
+     * #ai-api
      */
     cropImage(propertyId: string, box: { left: number, top: number, width: number, height: number }): Promise<iExternalImage | null>
 
@@ -1665,6 +1977,7 @@ export interface iPrintessApi {
     /**
      * Returns if property is a form field of type font
      * @param propertyId
+     * #ai-api
      */
     isFontFormField(propertyId: string): Promise<boolean>;
 
@@ -1673,6 +1986,7 @@ export interface iPrintessApi {
      * Sets the value of any top-level property passed to the external UI
      * @param propertyId
      * @param propertyValue Must be string and will be converted if neccessary
+     * #ai-api
      */
     setProperty(propertyId: string, propertyValue: string | number | iStoryContent): Promise<void | (iExternalImageScaleHints & { scale: number })>; // | Array<iExternalColorUpdate>>;
 
@@ -1685,6 +1999,7 @@ export interface iPrintessApi {
      * Sets a list of paragraph texts at once.
      * @param propertyId
      * @param paragraphs list of paragraph values
+     * #ai-api
      */
     setStoryParagraphs(propertyId: string, paragraphs: Array<{ index: number, newValue: string }>): Promise<void>
 
@@ -1692,18 +2007,21 @@ export interface iPrintessApi {
      * Sets the value of a form field
      * @param fieldName Name of the Form-Field or Form-Field Property-ID. If `name` is not found, Printess will try to find the Form-Field by its `label`. This fallback scenario is helpfull for shop integrations where the shop has no way to map labels to name.
      * @param newValue Must be string and will be converted if neccessary
+     * #ai-api
      */
     setFormFieldValue(fieldName: string, newValue: string): Promise<void>;
 
 
     /**
      * Forces re-rendering of current document
+     * #ai-api
      */
     reRender(): Promise<void>
 
     /**
      * Same like in the attach parameter, allows e.g. to modify list values in response to a user interaction.
      * @param formFieldProperties List of FormField-Names (key) and their respective properties to change
+     * #ai-api
      */
     setFormFieldProperties(formFieldProperties?: iFormFieldProperty[]): Promise<void>
 
@@ -1711,25 +2029,48 @@ export interface iPrintessApi {
      * Allows to set the disabled flag for certain items in a form field list.
      * @param ffName FF-Name to address
      * @param states List of value/disabled pairs
+     * #ai-api
      */
     setFormFieldListDisabledStates(ffName: string, states: Array<{ value: string, disabled: boolean }>): Promise<void>
 
     /**
      * Sets the number of inside pages of a book
      * @param bookInsidePages the number of pages the book should have. Must be >= 4.
+     * #ai-api
      */
     setBookInsidePages(bookInsidePages: number): Promise<void>
 
     /**
      * Sets the spine width, could be any Length value, like an equation or a fixed value with unit.
      * @param formular like `=spine.pages * 0.3mm` or just `2cm`
+     * #ai-api
      */
     setSpineFormular(formular: string): Promise<void>
 
     /**
+     * Returns spine values for the first cover of a book
+     * Return null if no cover can be found.
+     * #ai-api
+     */
+    getSpine(): null | { formular: string, spine: { value: number, unit: string }, hinge: { value: number, unit: string } }
+
+    /**
      * Sets the all spine related values.
+     * #ai-api
      */
     adjustBook(spine: iExternalBookSettings): Promise<void>
+
+    /**
+     * Adjusts margin settings on the current document.
+     * #ai-api
+     */
+    adjustMargins(settings: iExternalMarginSettings): Promise<void>
+
+    /**
+     * Returns the current margin settings of the current document.
+     * #ai-api
+     */
+    getMargins(): iExternalMarginSettings
 
     /**
      * updates a specific cell of a form field of type "table"
@@ -1803,8 +2144,15 @@ export interface iPrintessApi {
      * @param documentName Name of the document to change
      * @param widthInDocUnit 12 equals e.g. "12cm"
      * @param heightInDocUnit 12 equals e.g. "12cm"
+     * #ai-api
      */
     setDocumentSize(documentName: string, widthInDocUnit: number, heightInDocUnit: number): Promise<void>
+
+    /**
+     * Looks for sub doc in current selection, resizes it and also resize referencing frame
+     * #ai-api
+     */
+    resizeSubDocAndBox(newWidth: number, newHeight: number, boxToDocScale: number): Promise<boolean>
 
     /**
      * removes image for rich-text-frames which have a handwriting image set
@@ -1814,12 +2162,14 @@ export interface iPrintessApi {
 
     /**
      * Indicates if form fields are available
+     * #ai-api
      */
     hasFormFields(): boolean
 
     /**
      * Retrieves all Form Fields for UI rendering
      * @param tabId optional to get FFs for certain tab only
+     * #ai-api
      */
     getFormFieldsAsProperties(tabId?: "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2"): iExternalProperty[]
 
@@ -1853,6 +2203,7 @@ export interface iPrintessApi {
      * Returns the current form field value and its possible list values if available
      * Important: Only returns values of price-relevant form-fields!
      * @param fieldName Name of the Form-Field or Form-Field Property-ID
+     * #ai-api
      */
     getFormField(fieldName: string): Promise<{
         value: null | string | number | Array<Record<string, any>>,
@@ -1869,6 +2220,63 @@ export interface iPrintessApi {
             disabled?: boolean
         }>
     } | undefined>
+
+    /** Looks up a Form Field with fieldName and if the Form Field has a selected image in its list
+     * or if the Form Field is of type "imageId" it returns the selected image.
+     * #ai-api
+     */
+    getFormFieldSelectedImage(fieldName: string): iExternalImage | undefined
+
+    /**
+     * Returns a list of images from the Form Field Select List
+     * #ai-api
+     */
+    getFormFieldImageList(fieldName: string): Array<iExternalFormFieldImageListItem>
+
+    /**
+     * Mounts the panel-script bound to a Form Field of `dataType = "panel-script"` into
+     * `container`. The script runs once with `api`, `form`, `html`, `render` in scope, calls
+     * `await api.openPanel()` to obtain the container, and manages its own re-renders / internal
+     * state from there on (mirroring the `api.openDialog()` pattern).
+     * Returns `undefined` on success, or a human-readable error string on failure.
+     * #ai-api
+     */
+    mountFormFieldPanel(formFieldName: string, container: HTMLDivElement): string | undefined
+
+    /**
+     * Inside a `panel_*` script body, returns the mount container the panel should render into.
+     * Mirrors `openDialog()` without buttons or headline. Must be called while a panel script is
+     * being invoked by the host; throws otherwise.
+     * #ai-api
+     */
+    openPanel(): Promise<HTMLDivElement>
+
+    /**
+     * Persists JSON-serialisable state into a hidden (admin-visibility) text-area Form Field, so
+     * a `panel_*` script can restore its UI on tab change OR on a full template reload.
+     *
+     * If `fieldName` does not yet exist, a Form Field is created on the fly: dataType `string`,
+     * uiControl `text-area`, visibility `admin` (invisible to the buyer). If it already exists,
+     * the value is overwritten and the schema is left alone â€” pick a unique name per panel.
+     *
+     * Returns `undefined` on success, or a human-readable error string on failure.
+     * #ai-api
+     */
+    writeStateToFormField(fieldName: string, state: unknown): Promise<string | undefined>
+
+    /**
+     * Companion to `writeStateToFormField` â€” reads and JSON-parses the value back. Returns the
+     * parsed state, or `undefined` when the field does not exist, is empty, or is not valid JSON.
+     * Never throws; safe to call eagerly when a panel mounts.
+     * #ai-api
+     */
+    readStateFromFormField<T = unknown>(fieldName: string): T | undefined
+
+
+    /**
+     * Indicates if a table can be edited in fullscreen mode
+     */
+    editTableFullscreen(): boolean
 
     /**
      * Returns group type as string for table form fields
@@ -1888,11 +2296,13 @@ export interface iPrintessApi {
      * uiHelper contains a method to create a slider control from this model
      * @param property
      * @param metaProperty
+     * #ai-api
      */
     getNumberUi(property: iExternalProperty, metaProperty?: iExternalMetaPropertyKind | null): {
         meta: iExternalNumberUi;
         value: number;
     } | undefined;
+
     /**
      * Sets a numric values based on a retrieved number model.
      * Number models can have different value ranges than the values stored in printess
@@ -1900,6 +2310,7 @@ export interface iPrintessApi {
      * @param property
      * @param metaProperty
      * @param value
+     * #ai-api
      */
     setNumberUiProperty(property: iExternalProperty, metaProperty: iExternalMetaPropertyKind | null, value: number): Promise<void>;
 
@@ -1937,6 +2348,7 @@ export interface iPrintessApi {
      * @param propertyId
      * @param name
      * @param value
+     * #ai-api
      */
     setImageMetaProperty(propertyId: string, name: "scale" | "sepia" | "brightness" | "saturate" | "invert" | "contrast" | "grayscale" | "vivid" | "hueRotate", value: string | number): Promise<void>;
 
@@ -1944,6 +2356,7 @@ export interface iPrintessApi {
      * Resets all image filters (meta-values) of an image-property to default
      * @param propertyId
      * @param imageMeta optional parameter, can be used to set all image-filters to specific values.
+     * #ai-api
      */
     resetImageFilters(
         propertyId: string,
@@ -1956,9 +2369,31 @@ export interface iPrintessApi {
             vivid?: number
         }): Promise<void>;
 
+    /**
+     * Retrieve image borders on current spread
+     * #ai-api
+     */
+    getImageBordersOnCurrentSpread(): { innerWidth: number, outerWidth: number, innerColor: string, outerColor: string }
+
+    /**
+     * Sets image inner and outer border for all images on current spread
+     * Image borders are only rendered for non images without effects or warps or path-geometrie
+     * #ai-api
+     */
+    setImageBordersOnCurrentSpread(b: { innerWidth?: number, outerWidth?: number, innerColor?: string, outerColor?: string }, onlySplitterFrames: boolean): Promise<void>
+
 
     /** indicates single photo print order mode */
     isSinglePhotoMode(): boolean
+
+    /** indicates single photo print order mode */
+    isPhotoWallMode(): boolean
+
+    /** maximum number images  */
+    singlePhotoMaxImages(): number
+
+    /** minimum number of images  */
+    singlePhotoMinImages(): number
 
     /** Set per-doc single photo counter */
     setSinglePhotoCount(docId: string, count: number): Promise<void>
@@ -1966,27 +2401,30 @@ export interface iPrintessApi {
     /** Get per-doc single photo counter */
     getSinglePhotoCount(docId: string): number
 
+    /** wall image mode only, starts arrangement */
+    arrangeWallImages(): Promise<boolean>
+
     /**
      * Uploads one or many images to Printess and auto assigns the first image if an image frame is selected
      * If no frame is selected it distributes to the next possible frame or
      * automatically distributes all images depending on the template settings
      * @param files
-     * @param propertyId Auto assigns the first image to a specific frame identified via property Id.
+     * @param propertyId Auto assigns the first image to a specific frame identified via property Id. Pass "NONE" to NOT assign the image.
      * @param progressCallback
      * @param isHandwritingImage Toggle the current textframe to handwriting mode und assigns image
+     * #ai-api
      */
     uploadAndDistributeImages(files: FileList | null, propertyId: string, progressCallback?: (percent: number, state: "upload" | "optimization") => void, isHandwritingImage?: boolean): Promise<iExternalImage[]>;
 
-    /**
+    /*
      * Uploads one or many images to Printess and can auto assign the first image
      * @deprecated Its deprecated, because buyer side never create frames on image upload. Just via stickers, use uploadAndDistributeImages() instead
      * @param files
      * @param progressCallback
      * @param assignToFrameOrNewFrame Auto assigns the first image to the current slection or a specific frame
      * @param propertyId Auto assigns the first image to a specific frame identified via property Id.
-     */
-    uploadImages(files: FileList | null, progressCallback?: (percent: number, state?: "upload" | "optimization") => void, assignToFrameOrNewFrame?: boolean, propertyId?: string): Promise<iExternalImage[]>;
-
+      uploadImages(files: FileList | null, progressCallback?: (percent: number, state?: "upload" | "optimization") => void, assignToFrameOrNewFrame?: boolean, propertyId?: string): Promise<iExternalImage[]>;
+    */
 
     //  * Uploads a single image to Printess and can auto assign this image
     //  * @deprecated Its deprecated, because buyer side never create frames on image upload. Just via stickers
@@ -1999,6 +2437,7 @@ export interface iPrintessApi {
     /**
      * If no selection is present this call finds the first unassigned image and assigns it
      * If all images are already assigned it takes the first image and re-assigns it
+     * #ai-api
      */
     assignImageToNextPossibleFrame(imgId: string, origin?: "upload" | "thumb-click"): Promise<boolean>
 
@@ -2017,6 +2456,7 @@ export interface iPrintessApi {
      * Will insert a new image frame on the current spread as a sticker;
      * Returns false if image was not found.
      * @param imageId Existing image-id to assign
+     * #ai-api
      */
     insertImageFrame(imageId: string): Promise<boolean>
 
@@ -2029,19 +2469,45 @@ export interface iPrintessApi {
     transferImageByFrameName(fromBoxName: string, toBoxName: string, options?: { placement: "fit" | "fill", horizontalFocalPoint: number, verticalFocalPoint: number }): Promise<boolean>
 
     /**
-     * Returns if the magic photobook wizzard flag is enabled
+     * Returns true if the magic photobook wizzard flag is enabled
      */
     isMagicPhotobook(): boolean
 
     /**
-     * Tells UI to show pages-overview as preview-button
+     * Returns current photo distribution mode
      */
-    showPagesAsPreview(): iShowPagesPreviewMode
+    getPhotobookDistributionMode(): PhotobookDistribution
+
+    /**
+     * Returns true if the cover images should not appear again on the inside of the photobook
+     */
+    useExclusiveCoverImages(): boolean
+
+    /**
+     * Returns true if the photobook uses a debossed cover
+     */
+    useDebossedCover(): boolean
+
+    /**
+     * Number of images (0-4) distributed onto a debossed cover
+     */
+    debossedCoverImageCount(): number
+
+    /**
+     * Returns true if the image border button should be shown in the buyer UI.
+     * #ai-api
+     */
+    allowSimpleImageBorder(): boolean
 
     /**
      * Tells UI to show pages-overview after magic-photobook-wizzard has been completeted
      */
     showPagesOnLoad(): iShowPagesPreviewMode
+
+    /**
+     * Tells UI to show simplified pages view as last step of the magic-photobook-wizzard
+     */
+    showSimplifiedPagesView(): iShowPagesPreviewMode
 
     /**
      * Returns headline to display in wizard.
@@ -2104,6 +2570,7 @@ export interface iPrintessApi {
      * Rotates an image by 90deg and saves the result as new image and assigns rotated image to frame automatically.
      * @param propertyId
      * @param angle
+     * #ai-api
      */
     rotateImage(propertyId: string, angle: "0" | "90" | "180" | "270", crop?: { ws: number, hs: number, px: number, py: number }): Promise<iExternalImage | null>;
 
@@ -2111,6 +2578,7 @@ export interface iPrintessApi {
      * Rotates image with any given angle.
      * @param propertyId
      * @param rotation
+     * #ai-api
      */
     rotateAndCropImage(propertyId: string, rotation: iExternalImageRotation): Promise<iExternalImage | null>
 
@@ -2119,10 +2587,17 @@ export interface iPrintessApi {
     * @param url The url to the image you want to import to Printess.
     * @param assignToFrameOrNewFrame Default is `true`. Assign this image to the current frame, or create a new frame in case none is selected.
     * @param propertyId (optional) if a propertyId is submitted, printess will assign the image to that particular frame
+     * #ai-api
     */
     importImageFromUrl(url: string, assignToFrameOrNewFrame?: boolean, propertyId?: string): Promise<iExternalImage | null>;
 
+    /**
+     * #ai-api
+     */
     getSerializedImage(imageId: string): string | null;
+    /**
+     * #ai-api
+     */
     addSerializedImage(imageJson: string, assignToFrameOrNewFrame?: boolean): Promise<iExternalImage>;
 
     /**
@@ -2142,6 +2617,11 @@ export interface iPrintessApi {
      */
     alwaysRenderCroppedImage(): boolean
 
+    /**
+     * generates AI image with various models
+     * #ai-api
+     */
+    generateImage(model: iExternalGenImageModel, targetFrameName: string | null, action: Array<iExternalGenImageFollowUpAction>): Promise<{ resultImage: iExternalImage }>
 
     /**
      * Returns not null if buyer should be able to use generative ai image creation
@@ -2175,9 +2655,9 @@ export interface iPrintessApi {
 
     /**
      * Sets image placement based on selection, can only handle a single selected image for now.
-     * TODO: Support for propertyId will follow
+     * @propertyId TODO: Support for propertyId will follow
      */
-    setImagePlacement(which: "fit" | "fill" | "face" | "group", propertyId?: string): Promise<void | (iExternalImageScaleHints & { scale: number })>
+    setImagePlacement(which: "fit" | "fill", propertyId?: string): Promise<void | (iExternalImageScaleHints & { scale: number })>
 
 
     /**
@@ -2196,6 +2676,7 @@ export interface iPrintessApi {
      * Updates the editor live as the response is received in chunks.
      *
      * @param promptForAI - Instructional prompt to guide the AI generation.
+     * #ai-api
      */
     generateLiveTextFromAI(pid: string, promptForAI: string, usePreviousText: boolean): Promise<void>;
 
@@ -2241,6 +2722,10 @@ export interface iPrintessApi {
     numberOfColumns(): number;
 
     /**
+     * Apply number of columns for layouts also to mobile Layout Selection Overlay
+     */
+    applyNumOfColsToLayoutsDialogMobile(): boolean;
+    /**
      * Returns if buyer is allowed to upload pdf files
      */
     allowPdfUpload(): boolean;
@@ -2254,6 +2739,12 @@ export interface iPrintessApi {
      * Returns if buyer is only allowed to upload vector (svg) files
      */
     allowOnlyVectorImageUpload(): boolean;
+
+    /**
+     * automatically distribute images to frames on the cover document.
+     * Returns a list of all applied image-ids.
+     */
+    distributeImagesOnCover(images?: iExternalImage[]): Promise<Array<string>>
 
     /**
      * automatically distribute all non used uploaded images to frames which have not been assigned yet.
@@ -2360,23 +2851,27 @@ export interface iPrintessApi {
      * delete buyer uploaded images that are not in use
      * Returns the number of successfully deleted images.
      * @param images array of images to be deleted
+     * #ai-api
      */
     deleteImages(images: Array<iExternalImage>): number
 
     /**
      * If property is empty it returns the list of buyer uploaded images.
      * @param propertyId id of property which shows the image list
+     * #ai-api
      */
     getImages(propertyId?: string): Array<iExternalImage>
 
     /**
      * Returns all buyer uploaded images including information if the image is in use
+     * #ai-api
      */
     getAllImages(): Array<iExternalImage>
 
     /**
      * Returns all available image groups
      * @param propertyId id of property which shows the image list
+     * #ai-api
      */
     getImageGroups(propertyId?: string): Array<string>
 
@@ -2414,11 +2909,13 @@ export interface iPrintessApi {
 
     /**
      * Retrieves a list of available font-sizes in point
+     * #ai-api
      */
     getFontSizesInPt(): Array<number>
 
     /**
      * Retrieves a list of available font-sizes in point
+     * #ai-api
      */
     getFontSizesInPercent(): Array<number>
 
@@ -2431,6 +2928,7 @@ export interface iPrintessApi {
     /**
      * Returns a list of available fonts for a certain selected property (frame).
      * @param propertyId Id of property to filter available fonts per frame
+     * #ai-api
      */
     getFonts(propertyId: string): Array<{
         name: string;
@@ -2445,6 +2943,7 @@ export interface iPrintessApi {
      * Returns a list of available colors for a certain selected property (frame).
      * @param propertyId Id of property to filter available color per frame
      * @param bgColorIndex if passed a number here, it returns the background color properties without a selection.
+     * #ai-api
      */
     getColors(propertyId: string, bgColorIndex?: number): Array<{
         name: string;
@@ -2453,11 +2952,13 @@ export interface iPrintessApi {
 
     /**
      * Return color schemes if available as external property
+     * #ai-api
      */
     getColorSchemes(): iExternalProperty | null
 
     /**
      * Return primary display color from a color scheme (if available) as hex color
+     * #ai-api
      */
     getColorByColorScheme(schemeName: string): string | null
 
@@ -2480,13 +2981,14 @@ export interface iPrintessApi {
      * Shows internal color dialog to select cmyk color
      * @param p
      */
-    showColorDialog(p: iExternalProperty): Promise<iExternalColor | null>
+    showColorDialog(p: iExternalProperty, bcuiCssVariables?: any): Promise<iExternalColor | null>
 
     getColorInfo(p: iExternalProperty): iExternalColor | null
 
     /**
      * Returns a list of available paragraph-style for a certain selected property (frame).
      * @param propertyId Id of property to filter available styles per frame
+     * #ai-api
      */
     getParagraphStyles(propertyId: string): Array<{
         class: string,
@@ -2496,27 +2998,32 @@ export interface iPrintessApi {
     /**
      * Returns hex color from rgb value
      * @param color rgb color value
+     * #ai-api
      */
     getHexColor(color: string): string
 
     /**
      * Returns black or white hex depending on color value
+     * #ai-api
      */
     invertColor(hex: string, bw: boolean): string
 
     /**
      * Retrieves a SVG icon from printess
      * @param icon
+     * #ai-api
      */
     getIcon(icon: iconName, width?: number, height?: number): SVGElement
 
     /**
      * Retrieves a SVG icon as plain string from printess
+     * #ai-api
      */
     getIconAsString(icon: iconName): string
 
     /**
      * Retrieves all available icon-names
+     * #ai-api
      */
     getAllIconNames(): iconName[]
 
@@ -2532,6 +3039,7 @@ export interface iPrintessApi {
 
     /**
      * Returns true if printess has full Designer edit rights and is not running in Shop-Mode
+     * #ai-api
      */
     isInDesignerMode(): boolean;
 
@@ -2580,6 +3088,7 @@ export interface iPrintessApi {
 
     /**
      * Returns all images placed on the current spread
+     * #ai-api
      */
     getImagesFromCurrentSpread(excludeSelectedFrames: boolean, skipDefaultImages: boolean, onlyFramesWithLayoutOrigin: boolean): iExternalImage[]
 
@@ -2587,7 +3096,12 @@ export interface iPrintessApi {
     /**
      * Selects the best layout snippet for all currently loaded images.
      */
-    insertLayoutAndAssignImages(images: iExternalImage[], splitVariantId?: string | null);
+    insertLayoutAndAssignImages(images: iExternalImage[], splitVariantId?: string | null, spreadId?: string);
+
+    /**
+     * Selects the cover layout snippet for all cover images and inserts it to the cover.
+     */
+    insertCustomCoverImagesToCoverLayout(coverCluster?: { imageId: string; thumbUrl: string; }[]);
 
     /**
      * Returns the maximum number of images in a single collage
@@ -2618,7 +3132,7 @@ export interface iPrintessApi {
      * @param targetPage optional, forces layout-snippets to left or right side if aspect ratio of snippet matches dimensions a single page of a double page spread
      * @param hideRemoveBorderOption optional, Default value is false
      */
-    insertLayoutSnippet(snippetUrl: string, targetPage?: "left" | "right" | "entire", spread?: any, colorScheme?: string, hideRemoveBorderOption?: boolean, splitVariant?: number, forceRepeat?: ForceSnippetPlacement, layoutImageSelection?: "apply" | "skip"): Promise<void>;
+    insertLayoutSnippet(snippetUrl: string, targetPage?: "left" | "right" | "entire", spread?: any, colorScheme?: string, hideRemoveBorderOption?: boolean, splitVariant?: number, forceRepeat?: ForceSnippetPlacement, layoutImageSelection?: "apply" | "skip", removeBoxesOnBackgroundLayer?: boolean, addingBackgroundLayout?: boolean): Promise<void>;
 
     /**
      * returns if a selected sticker could replace the current selection
@@ -2696,6 +3210,8 @@ export interface iPrintessApi {
 
 
     /**
+     * @deprecated Will not work from buyer side
+     *
      * Saves and publishes the template.
      * @param name The name you want to save the template under.
      */
@@ -2710,6 +3226,11 @@ export interface iPrintessApi {
      * Returns view dependend visibility of a certain panel-ui-hint
      */
     getPanelUiHintVisibility(pos: PanelUiHintPos, view: "mobile" | "desktop"): boolean
+
+    /**
+     * Retrieves a style value from a particular class
+     */
+    getStyleValue(className: string, propertyName: string): string
 
     /**
      * @deprecated
@@ -2984,9 +3505,15 @@ export interface iPrintessApi {
     isNextStepPreview(): boolean;
 
     /**
-     * Register Select Layout Dialog shown for current Spread
+     * Register Select Layout Dialog shown for specific Spread
      */
-    selectLayoutDialogHasBeenShownForCurrentSpread();
+    selectLayoutDialogHasBeenShownForCurrentSpread(spreadId: string);
+
+    /**
+     * Lets printess know that the layout has been applied
+     */
+    resetUndoBufferAfterInitialLayoutSelection(spreadId: string);
+
 
     /**
      * Return true if buyer can deselect an item on the current spread.
@@ -3013,14 +3540,29 @@ export interface iPrintessApi {
      * In steps-mode basket button always points to the basket.
      * If no steps are present basket button should lead to the preview
      */
-    getBasketButtonBehaviour(): "add-to-basket" | "go-to-preview"
+    getBasketButtonBehaviour(): "add-to-basket" | "go-to-preview" | "go-to-book-mook"
+
+    /**
+     * Read-Only Mode / BOOK MOOK PREVIEW
+     */
+    enterBookMookPreview(): Promise<void>
+    leaveBookMookPreview(): Promise<void>
+    /**
+     * Tells UI if currently in Page Flip Book Mook Preview
+     */
+    isInBookMookPreview(): boolean
+
+    /**
+     * Tells UI if currently in Read Only Mode
+     */
+    isInReadOnlyBuyerMode(): boolean
+
 
     /**
      * Tells the ui if it should a `Back-Button`from preview to edit.
      * Its true if the current displayed document is a `preview` document
      */
     hasPreviewBackButton(): boolean
-
 
     /**
      * Jumps to the previous available preview document if there is one.
@@ -3084,6 +3626,11 @@ export interface iPrintessApi {
     convertSplitterCellToImage(): Promise<void>
 
     /**
+    * Aligns all splitter clusters on current spread to document margins
+    */
+    alignSplitterClustersToDocMargin(): Promise<void>
+
+    /**
      * Set the gap size of the photo grid
      * @param n gap size of the photo grid
      */
@@ -3142,6 +3689,12 @@ export interface iPrintessApi {
      * Opens the selected sub doc (group)
      */
     openSelectedGroup(): Promise<void>
+
+    /**
+     * Opens a single photo-print document for full editing from the single-photo pages overview.
+     * Returns to the overview via `selectLastDocument()` (back button surfaces automatically).
+     */
+    openSinglePhotoDoc(docId: string): Promise<void>
 
     /**
      * Goes to the next available step (if any)
@@ -3353,13 +3906,15 @@ export interface iPrintessApi {
     /**
     * Returns selected Layout Category Name that will initially be selected in the Buyer Side for Layout Snippets
     * Can be empty string (and should be ignored) if not set via attach parameters
+    * @categories: default value null
     */
-    getInitialLayoutCategoryName(categories: iSnippetMenuCategory[] | null = null): string
+    getInitialLayoutCategoryName(categories?: iSnippetMenuCategory[] | null): string
 
     /**
      * Returns selected Layout Topic Id that will initially be selected in the Buyer Side for Layout Snippets
+     * @category: default value null
      */
-    getSelectedLayoutTopicId(category: iSnippetMenuCategory | null = null): string
+    getSelectedLayoutTopicId(category?: iSnippetMenuCategory | null): string
 
     /**
       * Returns if sticker or layout snippet menus should be rendered
@@ -3432,6 +3987,12 @@ export interface iPrintessApi {
      * Returns if Expert-Mode is active
      */
     isInExpertMode(): boolean
+
+    /**
+     * Returns if Expert-Mode should be enabled on template load
+     */
+    showExpertModeOnLoad(): boolean
+
     /**
      * Returns if UI should show a button to enter Expert-Mode
      */
@@ -3599,7 +4160,7 @@ export interface iPrintessApi {
 
     populateDesign(autoSelectLayout: boolean, callback: (percent: number, textPreview: string) => void, errorCallback: (error: any) => void): Promise<void>;
 
-    aiDesignMode(): "none" | "wizzard"
+    aiDesignMode(): "none" | "printess-make" | "claude-design"
 
     removeAiImageFramesFromPrimaryDocument(): Promise<void>
 
@@ -3616,7 +4177,7 @@ export interface iPrintessApi {
      * @param callback Callback to report the current progress
      * @param options Options to determine the photobook properties
      */
-    insertPhotobookPages(callback: (percent: number, step: iExternalPhotobookStep, msg: string) => void, options: iExternalPhotobookOptions, freeStyle: boolean): Promise<void>
+    insertPhotobookPages(callback: (percent: number, step: iExternalPhotobookStep, msg: string) => void, options: iExternalPhotobookOptions, freeStyle: boolean, coverCluster?: { imageId: string; thumbUrl: string; }[], customizedImageSpreads?: { imageId: string; thumbUrl: string; }[][]): Promise<void>
 
     /**
      * Analyzes uploaded images to retrieve the information needed for photobook creation.
@@ -3651,11 +4212,62 @@ export interface iPrintessApi {
     getRenderClustersEstimation(options: iExternalPhotobookOptions): iPhotobookEstimation
 
     /**
+     * Gets a collection of image clusters the way they would be distributed in a photobook when created with the provided options.
+     *
+     * @param options Options for the photobook creation
+     */
+    getRenderClustersImages(options: iExternalPhotobookOptions): Promise<{ imageId: string; thumbUrl: string; }[][]>
+
+    /**
+     * Gets the image cluster for the cover the way it would be distributed in a photobook when created with the provided options.
+     *
+     * @param amount number of images for the cover layout
+     */
+    getRenderClustersCoverImages(amount: number): Promise<{ imageId: string; thumbUrl: string; }[]>
+
+    /**
     * @returns True if any analyzed images are available for photobook creation, false otherwise.
     */
     hasCurPhotobookData(): boolean
 
     streamPrompt(prompt: string, onMessage: (message: string) => void, onFinished: () => void): Promise<void>;
+
+    /**
+     * Stream a prompt to Anthropic (Claude). Forwards text deltas to `onMessage` as they arrive
+     * and calls `onFinished` once the stream completes, passing any skill-generated files.
+     */
+    streamAnthropicPrompt(
+        request: {
+            prompt: string,
+            model?: "opus-4.7" | "sonnet-4.6" | "haiku-4.5",
+            skill?: string,
+            maxTokens?: number,
+            imageUrls?: string[],
+            sessionId?: string,
+            containerId?: string
+        },
+        onMessage: (message: string) => void,
+        onFinished: (skillResults?: Array<{ filename: string, mimeType: string, encoding: "utf8" | "base64", data: string }>) => void
+    ): Promise<{ sessionId?: string, containerId?: string }>;
+
+    /** If claude design is available  */
+    canUseClaudeDesign(): boolean
+
+    /** If claude design internal testing stuff is available  */
+    canUseClaudeDevStuff(): boolean
+
+    /**
+     * Render Design via Claude. Persists settings to template properties when provided.
+     */
+    runClaudeDesign(prompt: string, skill?: "printess-layout-skill", settings?: iClaudeDesignSettings): Promise<ConversionTask>
+
+    /** Returns last persisted Claude design dialog inputs from template properties. */
+    getClaudeDesignSettings(): iClaudeDesignSettings | undefined
+
+    /**
+     * Imports Printess intermediate document format
+     */
+    importTemplate(task: TemplateImportTask, options: TemplateImportOptions): Promise<void>
 
     /**
      * Returns the JSON required to generate an AI Letter
@@ -3698,8 +4310,27 @@ export interface iPrintessApi {
      * Shows a dialog with headline and ok / cancel buttons.
      * Returns a container to render your own content in.
      * @param options Text and callback informations
+     * #ai-api
      */
     openDialog(options: IGenericDialogOptions): Promise<HTMLDivElement>
+
+    /**
+     * Closes the dialog
+     * #ai-api
+     */
+    closeDialog(): void
+
+    /**
+     * Disables all buttons of the dialog opened with openDialog()
+     * #ai-api
+     */
+    disableDialogButtons(): void
+
+    /**
+     * Enables all buttons of the dialog opened with openDialog()
+     * #ai-api
+     */
+    enableDialogButtons(): void
 
     /**
      * Shows simple progress overlay
@@ -3711,6 +4342,18 @@ export interface iPrintessApi {
      */
     hideProgress()
 
+    /**
+     * Displays a dropdown Menu at the target position with the set menu items
+     * @param e MouseEvent to get the target and mouse position
+     * @param items Menu items that should be displayed
+     */
+    showContextMenu(e: MouseEvent, items: Array<iExternalContextMenuItem>)
+
+    /**
+     * Selects Tab in Panel-Ui
+     */
+    selectTab(tab: "#NONE" | "#LAYOUTS" | "#PHOTOS" | "#THEME" | "#PAGES" | "#ADD-TEXT" | "#ADD-IMAGE" |
+        "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2" | string): Promise<void>
 
     /**
      * Tells if current template has an animation-timeline
@@ -3740,7 +4383,7 @@ export interface iPrintessApi {
      * @param pxWidth The output width in pixel, defaults to the setup html-width of the animation. Max is 2000px, min is 100px
      * @returns { pxWidth: number, pxHeight: number, data: string } "data" contains the HTML.
      */
-    getAnimationHtmlAsString(docIdOrName?: string, spreadIndex: number = 0, pxWidth?: number): Promise<{ pxWidth: number, pxHeight: number, data: string } | null>
+    getAnimationHtmlAsString(docIdOrName?: string, spreadIndex?: number, pxWidth?: number): Promise<{ pxWidth: number, pxHeight: number, data: string } | null>
 
     /**
      * Reassign/change callbacks.
@@ -3765,12 +4408,17 @@ export interface iPrintessApi {
 
 
 export interface IGenericDialogOptions {
-    callback: () => void,
+    /** Fired when user press then ok button. Return "keep-open" to not close the dialog */
+    callback: () => Promise<void | "keep-open"> | void | "keep-open"
+    /** Fired when user press then cancel button. Return "keep-open" to not close the dialog */
+    cancelCallback?: () => Promise<void | "keep-open"> | void | "keep-open"
     headline: string,
     okLabel?: string,
     cancelLabel?: string,
-    message?: string
-    cancelCallback?: () => void
+    message?: string,
+    info?: string,
+    relativePosition?: boolean,
+    minHeight?: string
 }
 
 export type JobStatus = {
@@ -3839,7 +4487,7 @@ export interface iExternalFormFieldInfo {
 }
 
 export interface iExternalPhotobookOptions {
-    distributionMethod: "cc" | "fs"
+    distributionMethod: "cc" | "fs" | "simple"
     spreadCount: number
     imageCount: number
     firstSpreadImageCount: number
@@ -3849,8 +4497,10 @@ export interface iExternalPhotobookOptions {
     maxCollectedPerSpread: number
     filterImages: boolean,
     initialCreation: boolean
+    coverImageCount: number
+    useExclusiveCoverImages: boolean
 }
-export type iExternalPhotobookStep = "mode" | "start" | "upload" | "adjust" | "analyze" | "distribute" | "error" | "done";
+export type iExternalPhotobookStep = "mode" | "start" | "upload" | "adjust" | "analyze" | "customize" | "distribute" | "error" | "done";
 
 export type iExternalImageAnalysisStep = "analyze" | "error" | "done";
 export interface iExternalImageAnalysisOptions {
@@ -3944,6 +4594,10 @@ export interface iExternalDocAndSpreadInfo {
      */
     showBookShadow: boolean
     /**
+     * Indicates if the user is allowed to add spreads
+     */
+    userCanAddSpreads: boolean,
+    /**
      * minimum number of spreads
      */
     minSpreads: number,
@@ -4035,6 +4689,9 @@ export type iExternalBookSettings = {
     /** optional: `Maximum Book Pages` set max pages and outo removes overidge pages */
     maxPages?: number,
 
+    /** optional: `Initial Freestyle Photobook Pages` set initial amount of pages the freestyle photobook is created with */
+    initialFreestylePhotobookPages?: number,
+
     /** optinal: enable / disable layflat mode */
     layflat?: boolean,
 
@@ -4050,6 +4707,34 @@ export type iExternalBookSettings = {
     /** optional: set all cover documents imposition by name */
     coverImposition?: string
 
+    previewCoverType?: "hard" | "soft";
+
+    /** optional: enable the debossed (premade) cover - the cover gets a fixed number of images and no theme cover layout is applied */
+    useDebossedCover?: boolean,
+    /** optional: number of images (0-4) placed on the debossed cover */
+    debossedCoverImageCount?: number,
+
+}
+
+export type iExternalMarginSettings = {
+    /** optional: show or hide margin guide lines */
+    show?: boolean,
+    /** optional: left (or inside) margin â€” Length string like `"1cm"` or `"5mm"` */
+    inside?: string,
+    /** optional: right (or outside) margin â€” Length string like `"1cm"` or `"5mm"` */
+    outside?: string,
+    /** optional: top margin â€” Length string like `"1cm"` or `"5mm"` */
+    top?: string,
+    /** optional: bottom margin â€” Length string like `"1cm"` or `"5mm"` */
+    bottom?: string,
+    /** optional: number of text columns (0â€“4) */
+    columns?: number,
+    /** optional: gap between columns â€” Length string like `"5mm"` or `"1cm"` */
+    columnGap?: string,
+    /** optional: horizontal guide positions (y-axis lines) as length strings like `"1cm"` or `"5mm"` */
+    horizontalGuides?: string[],
+    /** optional: vertical guide positions (x-axis lines) as length strings like `"1cm"` or `"5mm"` */
+    verticalGuides?: string[],
 }
 
 export interface iSnippetMenu {
@@ -4080,7 +4765,7 @@ export interface iExternalFrameBounds {
 }
 
 export type iExternalPropertyKind = "edit-text-button" | "edit-group-button" | "color" | "single-line-text" | "text-area" | "label" | "checkbox" | "background-button" | "splitter-layouts-button" | "grid-gap-button" | "convert-to-image" | "convert-to-text" | "record-left-button" | "record-right-button" | "horizontal-scissor" | "vertical-scissor" | "multi-line-text"
-    | "selection-text-style" | "selection-letter-ai" | "selection-text-ai" | "selection-text-handwriting" | "number" | "pixelLength" | "percentLength" | "image" | "font" | "select-list" | "select-list+info" | "tab-list" | "image-list" | "image-list+caption" | "color-list" | "table" | "image-id" | "patternTileWidth" | "text-frame-style" | "custom-text-combo";
+    | "selection-text-style" | "selection-letter-ai" | "selection-text-ai" | "selection-text-handwriting" | "number" | "pixelLength" | "percentLength" | "image" | "font" | "select-list" | "select-list+info" | "tab-list" | "image-list" | "image-list+caption" | "color-list" | "table" | "image-id" | "patternTileWidth" | "text-frame-style" | "custom-text-combo" | "panel-script";
 
 export type iExternalMetaPropertyKind = null |
     "text-style-color" | "text-style-size" | "text-style-line-height" | "text-style-tracking" | "text-style-baseline-script" | "text-style-font" | "text-style-hAlign" | "text-style-vAlign" | "text-style-vAlign-hAlign" | "text-style-paragraph-style" | "handwriting-image" |
@@ -4132,6 +4817,9 @@ export interface iExternalProperty {
     onHiddenLayer?: boolean
     linkedPropertyId?: string
 
+    /** Name of the panel-script function, only set when kind === "panel-script" */
+    panelScriptName?: string;
+
 }
 
 export interface iExternalBoxMeta {
@@ -4149,7 +4837,7 @@ export interface iExternalBoxMeta {
 }
 
 export type ExtFF_WriteSecondWhat = "value" | "label" | "info" | "tag" | "meta1" | "meta2" | "meta3" | "meta4"
-export type ExtFFType = "string" | "table" | "number" | "label" | "font" | "color";
+export type ExtFFType = "string" | "table" | "number" | "label" | "font" | "color" | "panel-script";
 
 
 export interface iExternalFormFieldMeta {
@@ -4330,7 +5018,7 @@ export interface iExternalImageMeta {
     vivid: number;
     hueRotate: number;
     invert: number;
-    placement: "fit" | "fill" | "face" | "group",
+    placement: "fit" | "fill",
     thumbUrl: string;
     thumbCssUrl: string;
     canUpload: boolean;
@@ -4364,10 +5052,6 @@ export interface iExternalImageMeta {
 }
 
 export interface iExternalImageAiStore {
-    /** aiMaxObjects */
-    mo: number, //
-    /** ai-placement like "face" */
-    pl: string,
     /** text-2-image Model */
     tMod?: iExternalText2ImageModel;
     /** text-2-image prompt */
@@ -4384,32 +5068,56 @@ export interface iExternalImageAiStore {
     tSel?: boolean; //  select style
     /** text-2-image background */
     tBcg?: iExternalText2ImageBackground;
-    /** iExternalSegmentAnythingTaskStore  */
+    /** segment anything task */
     sat?: iExternalSegmentAnythingTaskStore;
+    /** segment face task */
+    sft?: iExternalSegmentFaceTaskStore;
     /** Image Assign Action */
     iAA?: iExternalImageAssignAction;
     iEP?: string // image-edit prompt
-    /** image edit quality */
+    /** image-edit quality */
     iEQ?: iExternalImageEditQuality;
     /** image-edit model */
     iEM?: iExternalImageEditModel;
     /** image-edit remove background */
     iERBg?: boolean;
+    /** image-edit additional imageurl */
+    iEAIU?: string[];
 }
 
-export type iExternalText2ImageModel = "SDXL" | "Flux Ultra" | "Flux Pro" | "Flux Dev" | "Flux Schnell" | "GPT Image 1" | "GPT ImageEdit" | "Nano Banana" | "Nano Banana Pro";
+export type iExternalText2ImageModel = "SDXL" | "Flux Ultra" | "Flux Pro" | "Flux Dev" | "Flux Schnell" | "GPT Image 1" | "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2";
 export type iExternalText2ImageBackground = "transparent" | "opaque" | "auto";
-export type iExternalImageEditModel = "GPT ImageEdit" | "Nano Banana" | "Nano Banana Pro" | "Flux Pro Kontext";
+export type iExternalImageEditModel = "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2" | "Flux Pro Kontext" | "Flux 2 Klein 4B";
 export type iExternalImageEditQuality = "low" | "medium" | "high";
 export type iExternalImageAssignAction = undefined | "fc-swap" | "bg-rm" | "bg-face" | "face-sticker" | "bg-sticker" | "contour-only" | "image-edit" | "sgm-any" | "sgm-any-sticker";
+export type iExternalImageSegmentModelModel = "Segment Anything" | "Segment Anything 3";
 
 export interface iExternalSegmentAnythingTaskStore {
+    md: iExternalImageSegmentModelModel // model
+    pt: string // prompt
     cls: string; // classes
     out: string; // output
     cp: boolean; // crop
     dp: boolean; // doublePass
     es: number; // erosionStrength
     ss: number; // smoothingStrength
+}
+
+export type iExternalSegmentFaceProvider = "Printess" | "CutoutPro"
+export interface iExternalSegmentFaceTaskStore {
+    pv: iExternalSegmentFaceProvider; // provider
+    cp: boolean; // crop
+}
+
+export type iExternalRemoveBackgroundProvider = "Printess" | "CutoutPro"
+export interface iExternalRemoveBackgroundTaskStore {
+    pv: iExternalSegmentFaceProvider; // provider
+    cp: boolean; // crop
+}
+
+export type iExternalUpscaleProvider = "Printess" | "CutoutPro"
+export interface iExternalUpscaleTaskStore {
+    pv: iExternalSegmentFaceProvider; // provider
 }
 
 export interface iExternalImageRotation {
@@ -4436,7 +5144,7 @@ export type iExternalErrors = Array<iExternalError>
 export interface iExternalError {
     boxIds: Array<string>,
     pinnedDocId?: string,
-    errorCode: "emptyError" | "user-canceled" | "customStepValidation" | "preflight" | "rowIndexLessThanZero" | "invalidDayValue" | "imageResolutionLow" | "imageMissing" | "imageStillUploading" | "imageCouldNotUpload" | "textMissing" | "minTableEntries" | "maxTableEntries" | "mandatoryTableCell" | "notChecked" | "notSelected" | "characterMissing" | "maxCharsExceeded" | "offensiveLanguageDetected" | "regExpNotMatching" | "textOverflow" | "noLayoutSnippetSelected" | "invalidNumber" | "missingEventText" | "emptyBookPage" | "invalidPageCount" | "needMorePages" | "tooManyPages",
+    errorCode: iErrorCode,
     errorValue1: string | number,
     errorValue2?: string | number,
     errorValue3?: string | number,
@@ -4444,16 +5152,17 @@ export interface iExternalError {
     errorType?: "text" | "image" | "table" | "book" | "step" | "snippet" | "ff-selection",
     errorIcon?: iconName
 }
-
 export type iErrorCode = "emptyError" | "user-canceled" | "customStepValidation" | "preflight" | "rowIndexLessThanZero" | "invalidDayValue" |
     "imageResolutionLow" | "imageMissing" | "imageStillUploading" | "imageCouldNotUpload" | "textMissing" | "minTableEntries" | "maxTableEntries" |
     "mandatoryTableCell" | "notChecked" | "notSelected" | "characterMissing" | "maxCharsExceeded" | "offensiveLanguageDetected" | "regExpNotMatching" |
-    "textOverflow" | "noLayoutSnippetSelected" | "invalidNumber" | "missingEventText" | "emptyBookPage" | "invalidPageCount" | "needMorePages" | "tooManyPages";
+    "textOverflow" | "noLayoutSnippetSelected" | "invalidNumber" | "missingEventText" | "emptyBookPage" | "invalidPageCount" | "needMorePages" | "tooManyPages" |
+    "needMorePhotos" | "toManyPhotos";
 
 export type iErrorType = iErrorImageResolutionLow | iErrorImageMissing | iErrorImageStillUploading | iErrorImageCouldNotUpload | iErrorEmpty | iErrorPreflight |
     iErrorUserCanceled | iErrorCustomStepValidation | iErrorEmptyBookPage | iErrorInvalidPageCount | iErrorNeedMorePages | iErrorTooManyPages | iErrorCharacterMissing |
     iErrorMaxChars | iErrorRegExpNotMatching | iErrorOffensiveLanguage | iErrorTextMissing | iErrorTextOverflow | iErrorNotSelected | iErrorNotChecked | iErrorNoLayoutSnippetSelected |
-    iErrorMinTableEntries | iErrorMaxTableEntries | iErrorMandatoryTableCell | iErrorMissingEventText | iErrorInvalidNumber | iErrorInvalidDayValue | iErrorRowIndexLessThanZero
+    iErrorMinTableEntries | iErrorMaxTableEntries | iErrorMandatoryTableCell | iErrorMissingEventText | iErrorInvalidNumber | iErrorInvalidDayValue | iErrorRowIndexLessThanZero |
+    iErrorNeedMorePhotos | iErrorToManyPhotos
 
 export interface iExternalErrorDisplay {
     errorCode: iErrorCode,
@@ -4531,6 +5240,18 @@ export interface iErrorTooManyPages extends iExternalErrorDisplay {
     errorCode: "tooManyPages",
     icon: "book-thin",
     maxSpreads: number
+}
+
+export interface iErrorNeedMorePhotos extends iExternalErrorDisplay {
+    errorCode: "needMorePhotos",
+    icon: "image",
+    min: number
+}
+
+export interface iErrorToManyPhotos extends iExternalErrorDisplay {
+    errorCode: "toManyPhotos",
+    icon: "image",
+    max: number
 }
 
 export interface iErrorOffensiveLanguage extends iExternalErrorDisplay {
@@ -4703,10 +5424,11 @@ export interface iMergeTemplate {
     ignoreExchangeIds?: boolean
 }
 
-export declare type externalFormFieldChangeCallback = (name: string, value: string, tag: string, label: string, ffLabel: string) => void;
+export declare type externalFormFieldChangeCallback = (name: string, value: string, tag: string, label: string, ffLabel: string, disabled?: boolean, imageId?: string, meta1?: string, meta2?: string, meta3?: string, meta4?: string) => void;
 export declare type externalSelectionChangeCallback = (properties: Array<iExternalProperty>, scope: "document" | "frames" | "text") => void;
 export declare type externalSpreadChangeCallback = (groupSnippets: ReadonlyArray<iExternalSnippetCluster> | Array<iExternalSnippetCluster>, layoutSnippets: ReadonlyArray<iExternalSnippetCluster> | Array<iExternalSnippetCluster>, tabs: ReadonlyArray<iExternalTab> | Array<iExternalTab>, hasRootFormFieldsWithOutTab: boolean, showSelectLayoutDialog: boolean, optOutHash: string, spreadId: string) => void;
 export declare type externalDocChangeCallback = (newDocId: string) => void;
+export declare type externalTabChangeCallback = (tabId: "#NONE" | "#LAYOUTS" | "#PHOTOS" | "#THEME" | "#PAGES" | "#ADD-TEXT" | "#ADD-IMAGE" | "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2" | string) => void;
 export declare type externalGetOverlayCallback = (properties: Array<{ kind: iExternalPropertyKind, isDefault: boolean, isMandatory: boolean }>, width: number, height: number) => HTMLDivElement;
 export declare type refreshPaginationCallback = undefined | (() => void);
 export declare type receiveMessageCallback = undefined | ((topic: MessageTopic, data: Record<string, any>) => void);
@@ -4719,11 +5441,35 @@ export type MessageTopic = "SplitterFrameToText" | "ShowAlert" | "OpenImageUploa
 
 export type iExternalHyphenationLanguage = "off" | "en-us" | "de" | "fr" | "es" | "se";
 
+export interface iExternalContextMenuItem {
+    caption: string;
+    sub?: Array<contextMenuItem>;
+    callback?: () => void;
+    bold?: boolean;
+    disabled?: boolean;
+    color?: string;
+    icon?: iconName;
+    font?: string;
+    textOnly?: boolean;
+    hidden?: boolean;
+}
+
 export interface iExternalImage {
+    /** The Printess image-id, use for assigning the image to frames */
     id: string;
+
+    /** The original-URL, be careful might be PDF or TIFF! */
     originalImageUrl: string;
+
+    /** Returns always a PNG-URL, best for passing to AI models */
+    pngImageUrl: string;
+
+    /** A scaled down version of the images for ui display */
     thumbUrl: string;
+
+    /** A scaled down version for direct use in css, contains url('') brackets */
     thumbCssUrl: string;
+
     width: number;
     height: number;
     fileHash: string;
@@ -4738,6 +5484,21 @@ export interface iExternalImage {
     uploaded: number;
 }
 
+
+export interface iExternalFormFieldImageListItem {
+    imageId: string,
+    image: iExternalImage,
+    isSelected: boolean,
+    key: string,
+    label: string,
+    description?: string,
+    meta1?: string,
+    meta2?: string,
+    meta3?: string,
+    meta4?: string
+}
+
+
 /** A bounding box in XYXY fromat */
 export type iExternalBoundingBox = { x1: number, y1: number, x2: number, y2: number }
 
@@ -4749,6 +5510,7 @@ export interface iExternalImageAnalysis {
     focusScoreFft: number
     numFaces: number
     faceBboxes: iExternalBoundingBox[]
+    faceAestheticScores?: number[]
     allFacesBbox?: iExternalBoundingBox
     faceAreasPct: number[]
     faceFocusScore: number
@@ -4967,6 +5729,9 @@ export type iExternalProductPriceInfo = {
     /** key / value list of all price relevant form fields */
     priceRelevantFormFields: { [key: string]: { value: string, tag: string } },
 
+    /** key / value list of all price-per-letter form fields with price and character count */
+    pricePerLetterFormFields: { [key: string]: { price: number, amount: number } },
+
     /** Sum of all used priceCategoryGroups and there used amounts
      * All used layout-snippets and stickers with a price category
      * will be summed up here
@@ -4999,9 +5764,12 @@ export type iExternalProductPriceInfo = {
     /**
      * @deprecated
      * A list of all used document-price-categories. Only returns documents which have actually been edited by the buyer
-     * Important: Its depricated, You can not enable this feature anymore!
+     * Important: Its deprecated, You can not enable this feature anymore!
      */
-    priceCategories: Array<string>
+    priceCategories: Array<string>,
+
+    /** @internal */
+    testModeEnabled: boolean
 }
 
 /** Information about all used price categories plus the number of usages.
@@ -5045,12 +5813,35 @@ export interface iExternalPriceDisplay {
      *  will be displayed via info icon in an iframe.
      */
     infoUrl?: string
+    /**
+     *. Dynamically update pice categorie labels.
+     */
+    priceCategoryLabels?: Record<string, string>
+
+}
+
+export interface iClaudeDesignSettings {
+    product: string;
+    brandColors: string[];
+    companyName: string;
+    graphicStyle?: string;
+    styleMode?: "upload" | "pick" | "description";
+    logoUrl: string;
+    uploadedLogoFileName: string;
+    logoDarkUrl?: string;
+    uploadedLogoDarkFileName?: string;
+    prompt: string;
+    productType?: string;
+    ciImageUrl?: string;
+    uploadedCiImageFileName?: string;
+    lastResult?: ConversionTask;
+    lastInvalidResult?: string;
 }
 
 // export type ImageAiFilterType = "image-edit";
 // export type ImageAiFilterModel = "GPT Image Edit" | "Nano Banana";
 export type ImageAiFilterType = "IMAGE-EDIT";
-export type ImageAiFilterModel = "GPT ImageEdit" | "Nano Banana" | "Nano Banana Pro";
+export type ImageAiFilterModel = "GPT ImageEdit" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2";
 export interface ImageAIFilter {
     id: string,
     label: string,
@@ -5068,6 +5859,8 @@ export interface ImageAIFilterCategory {
     filters: ImageAIFilter[]
 }
 
+
+export type PhotobookDistribution = "MagicMode" | "OneImagePerPage" | "FixedThemeWithAdditionalPages"
 
 export type PhotobookThemePageType = "cover" | "single" | "double"
 export type PhotobookThemeFiltering = "show-all-themes" | "hide-theme-selection" | "use-theme-keywords"
@@ -5166,6 +5959,7 @@ export type iconName =
     | "minus-bold"
     | "minus-light"
     | "circle-1"
+    | "circle-1-red"
     | "shapes"
     | "shapes-solid"
     | "square"
@@ -5294,7 +6088,9 @@ export type iconName =
     | "shopping-cart-add"
     | "folder-plus"
     | "eye-solid"
+    | "eye-solid-pink"
     | "eye-solid-slash"
+    | "eye-solid-slash-pink"
     | "font"
     | "send-back"
     | "send-backward"
@@ -5302,6 +6098,7 @@ export type iconName =
     | "bring-forward"
     | "distort"
     | "list-ul"
+    | "drag"
     | "ellipsis-v"
     | "ellipsis-h"
     | "sun-light"
@@ -5483,4 +6280,7 @@ export type iconName =
     | "subscript"
     | "photo-grid"
     | "swap"
+    | "page-margin"
+    | "border"
+    | "heart"
     ;
