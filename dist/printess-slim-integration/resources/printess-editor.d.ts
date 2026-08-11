@@ -3,6 +3,8 @@ import { TemplateImportOptions, TemplateImportTask } from "https://editor.printe
 /**
  * Main call to attach the Printess to div-element of your choice.
  * In ```printessAttachParameters``` you can pass authorization, template-name and other parameters.
+ * Returns the externalApi (iPrintessApi) instance all further calls go through.
+ * #ai-api:core
  */
 export declare function attachPrintess(p: printessAttachParameters): Promise<iPrintessApi>;
 
@@ -76,6 +78,8 @@ export type iExternalGenImageModel =
     | ImgModel_GptImage1_5Edit
     | ImgModel_GptImage2
     | ImgModel_GptImage2Edit
+    | ImgModel_Ideogram4
+    | ImgModel_Ideogram4Edit
 
 export type iExternalGenImageFollowUpAction = "remove-background" | "assign-to-frame"
 
@@ -200,9 +204,49 @@ export interface ImgModel_GptImage2Edit {
     quality?: "low" | "medium" | "high"
 }
 
+export interface ImgModel_Ideogram4 {
+    model: "Ideogram4"
+    prompt: string;
+    quality?: "low" | "medium" | "high" // used for the "rendering_speed" setting
+    promptExpansion?: "None" | "Medium" | "Large"
+    acceleration?: "none" | "low" | "regular" | "high"
+}
+
+export interface ImgModel_Ideogram4Edit {
+    model: "Ideogram4Edit"
+    prompt: string;
+    inputImageUrl: string
+    quality?: "low" | "medium" | "high" // used for the "rendering_speed" setting
+    promptExpansion?: "None" | "Medium" | "Large"
+    acceleration?: "none" | "low" | "regular" | "high"
+}
 
 
+/*
+************** GENERATE AI TEXT INTERFACES ************
+*/
 
+type TextModel_Anthropic = "opus-5.0" | "opus-4.8" | "opus-4.7" | "sonnet-4.6" | "haiku-4.5"
+
+type TextModel_OpenAi = "gpt-5.6-terra" | "gpt-5.6-luna" | "gpt-5.4-mini" | "gpt-5.4-nano" | "gpt-4o"
+
+export type iExternalGenTextModelName = TextModel_Anthropic | TextModel_OpenAi
+
+export interface iExternalGenTextModel {
+    /** Which LLM to prompt. */
+    model: iExternalGenTextModelName
+
+    /**
+     * The prompt. `${...}` expressions are evaluated against the current form fields first,
+     * so `` `Write a birthday card for ${form.name}` `` works.
+     */
+    prompt: string
+
+    /**
+     * Upper bound for the generated text, in tokens. Defaults to the chosen model's maximum.
+     */
+    maxTokens?: number
+}
 
 
 
@@ -365,8 +409,8 @@ export interface iPrintessComponent {
     hasPhotobookProgress(): boolean
     isModalDialogOpen(): boolean
     notifyUpcomingPriceChange(): void
-    propertyChangedBySystem(propertyId: string, newValue: any)
-    reloadFormFieldTab()
+    propertyChangedBySystem(propertyId: string, newValue: any): void
+    reloadFormFieldTab(): void
     selectionChangeCallback: externalSelectionChangeCallback
     spreadChangeCallback: externalSpreadChangeCallback
     docChangeCallback: externalDocChangeCallback
@@ -377,6 +421,8 @@ export interface iPrintessComponent {
     refreshUndoRedoState(): void
     refreshPriceDisplay(info: iExternalPriceDisplay): void
     updatePageThumbnail(spreadId: string, pageId: string, url: string): void,
+    startPageThumbnail(spreadId: string, pageId: string): void,
+    stopPageThumbnail(spreadId: string, pageId: string): void,
     imageListChangeCallback(): void,
     hide(): void,
     show(): void,
@@ -388,13 +434,14 @@ export interface iPrintessComponent {
     selectMenuKeyword(keyword: string): void
     clearLayoutSnippetCache(): void
     closePropertiesOverlay(): void
+    closeMobileOverlay(): void
     showTextEditOverlay(): void
     hasMiniPageNav(): boolean
     getLastDragContent(): "sticker" | "image-id" | null
-    loadTheme(themeName: string)
+    loadTheme(themeName: string): Promise<void>
     currentTheme(): string
     isFullyLoaded(): boolean
-    setIsSinglePhotoDistributionInProgress(value: boolean);
+    setIsSinglePhotoDistributionInProgress(value: boolean): void;
     selectTab(tab: "#NONE" | "#LAYOUTS" | "#PHOTOS" | "#THEME" | "#PAGES" | "#ADD-TEXT" | "#ADD-IMAGE" |
         "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2" | string): void
 }
@@ -446,8 +493,8 @@ export interface iInitialProperties {
     aspect: number
     acceptDefaultTextIfMandatory: boolean
     priceCategoryLabels: { [key: string]: string },
-    colors: Array<{ name: string, color: string }>,
-    fonts: Array<{ name: string, thumbUrl: string, displayName: string, familyName: string, weight: number, isItalic: boolean }>,
+    colors: Array<{ name: string, color: string, groupName: string }>,
+    fonts: Array<{ name: string, thumbUrl: string, displayName: string, familyName: string, weight: number, isItalic: boolean, groupName: string }>,
     fontSizesInPt: Array<number>,
     fontSizesInPercent: Array<number>,
     paragraphStyles: Array<{ class: string, css: string }>,
@@ -525,6 +572,12 @@ export interface ISaveShopData {
 }
 
 
+/**
+ * All callbacks Printess can fire into the host UI. Every callback is optional;
+ * pass the ones your UI needs as part of ```printessAttachParameters```.
+ * A buyer UI minimally handles selection/spread changes plus the basket flow.
+ * #ai-api:core
+ */
 export interface printessCallbacks {
     /**
      * If you application displays a loading animation, this call tells you to start
@@ -644,6 +697,12 @@ export interface printessCallbacks {
     getShopSavedDataCallback?: ((shopData: IShopDataProjectName) => void),
 
     /**
+    * Provide a callback function which is called when the buyer presses the [Load] button and is loading a saved project
+    * This callback can be used to reinitialize the integration (switching variants / update pricing etc)
+    */
+    shopDataLoadedCallback?: ((data: ISavedShopData) => void),
+
+    /**
      * Provide a callback function which is called when the buyer presses the [Save] button
      * If the user is not logged in yet the shopLoginCall is required to return if the user click login/register button
      * Besides saveToken, thumbnailUrl and custom project name (displayName) are returned for saving the template
@@ -691,7 +750,11 @@ export interface printessCallbacks {
      * "Nano Banana",
      * "Nano Banana Pro", "Nano Banana Pro - 2K", "Nano Banana Pro - 4K",
      * "Nano Banana 2 - 0.5K", "Nano Banana 2", "Nano Banana 2 - 2K", "Nano Banana 2 - 4K",
-     * "SDXL", "Flux Ultra", "Flux Pro", "Flux Dev", "Flux Schnell", "Flux 2 Klein 4B", "Flux Pro Kontext"
+     * "Flux Ultra", "Flux Pro", "Flux Dev", "Flux Schnell", "Flux 2 Klein 4B", "Flux Pro Kontext"
+     * "Claude Design", "Script Creation"
+     * "SDXL", "Ideogram 4 - low", "Ideogram 4 - medium", "Ideogram 4 - high",
+     * "opus-5.0", "opus-4.8", "opus-4.7", "sonnet-4.6", "haiku-4.5", 
+     * "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.4-mini", "gpt-5.4-nano", "gpt-4o",
      */
     onAiUsageCallback?: (ai: string, credits: number) => void
 
@@ -717,6 +780,11 @@ export interface iMakeData {
     addressLine3: string
 }
 
+/**
+ * Everything attachPrintess() accepts: authorization (token), template to load,
+ * the div to render into, UI configuration and all printessCallbacks.
+ * #ai-api:core
+ */
 export interface printessAttachParameters extends printessCallbacks {
     resourcePath?: string;
     domain?: string;
@@ -922,6 +990,13 @@ export interface printessAttachParameters extends printessCallbacks {
     bookSettings?: iExternalBookSettings
 
     /**
+     * Overrides the template's photobook theme menu id on attach.
+     * !Pass the Menu-ID not the name here!
+     * You can copy from the ui in the Account Portal.
+     */
+    photobookThemeMenuId?: string
+
+    /**
      * The initial form fields you want to fill.
      */
     formFields: Array<iFormFieldNameValue>;
@@ -1098,40 +1173,43 @@ export interface iPrintessApi {
 
     /**
      * retrieves root path for images
-     * #ai-api
+     * #ai-api:custom-ui
      */
     getResourcePath(): string;
 
     /**
       * retrieves any element inside the printess shadow root
       * In script Dialogs ONLY USE this method to find your Elements
-     * #ai-api
+     * #ai-api:custom-ui
      */
     querySelector(selectors: string): HTMLElement | null
 
     /**
      * retrieves the current shop token
-     * #ai-api
+     * #ai-api:core
      */
     shopToken(): string;
 
     /**
      * Returns if Printess is currently attached to the DOM.
+     * #ai-api:core
      */
     isAttached(): boolean;
 
     /**
      * Tells Printess to remove all global event-listeners
      * Logs error if handlers are not currently attached or if scope is not initialized
+     * #ai-api:core
      */
-    detachAllHandlers();
+    detachAllHandlers(): void;
 
     /**
-    * Tells Printess to re-attach all global event-listeners;
-    * This MUST NOT be called initially. Only after you have called detachAllHandlers();
-    * Logs error if handlers are not currently detached.
-    */
-    attachAllHandlers();
+     * Tells Printess to re-attach all global event-listeners;
+     * This MUST NOT be called initially. Only after you have called detachAllHandlers();
+     * Logs error if handlers are not currently detached.
+     * #ai-api:core
+     */
+    attachAllHandlers(): void;
 
     /**
      * Calculates the brightness of a color, return no-color if color can't be parsed
@@ -1147,7 +1225,7 @@ export interface iPrintessApi {
     getRegExp(key: string | "europe-letters"): string | null
 
 
-    setBcuiMobile(v: boolean)
+    setBcuiMobile(v: boolean): void
 
     /**
      * Load a template to the Printess editor.
@@ -1155,20 +1233,26 @@ export interface iPrintessApi {
      * @param templateNameOrToken can be either the name of a template (case sensitive) or the save-token received as a result of a user design save.
      * @param mergeTemplates optional parameter to pass other templates to merge
      * @param takeOverFormFieldValues optional parameter to transfer global form field values from previous to next document
+     * @param takeOverMatrixProduct optional take over the matrix product value.
+     * @param clearExchangeCaches optional clear exchange cache and last loaded scope, so no data is exchanged when a new template is loaded. Defaults to false.
+     * @param templateVersion optional the template version to load, due to backward compatibility the default is "draft", please always use "published" in the live shops.
+     * #ai-api:core
      */
-    loadTemplate(templateNameOrToken: string, mergeTemplates?: iMergeTemplate[], takeOverFormFieldValues?: boolean): Promise<void>
+    loadTemplate(templateNameOrToken: string, mergeTemplates?: iMergeTemplate[], takeOverFormFieldValues?: boolean, takeOverMatrixProduct?: boolean, clearExchangeCaches?: boolean, templateVersion?: "draft" | "published"): Promise<void>
 
     /**
      * Loads template first and then exchange state from save-token.
      * @param templateName name of template to load
      * @param saveToken save-token to extract exchange state from
      * @param publishedVersion optional, default is true.
+     * #ai-api:core
      */
     loadTemplateWithExchangeToken(templateName: string, saveToken: string, publishedVersion?: boolean): Promise<void>
 
     /**
      * Logs a message to the save token. Useful for setting user confirmation messages like "accepted low resolution" or "accepted image compliance warning".
      * @param message The message you want to log to the save token. It's automatically prefixed with the current date and time.
+     * #ai-api:core
      */
     addBuyerLogEntry(message: string): void;
 
@@ -1176,18 +1260,21 @@ export interface iPrintessApi {
      * Returns information about the applied layout snippets per document per spread.
      * The first level contains a mapping of document name to spread info.
      * The second level (spreads) contains the mapping of spread name or id (in case the spread does not have a name set) to the layout info.
+     * #ai-api:layouts-snippets
      */
     getAppliedLayouts(): Record<string, Record<string, appliedLayoutInfo>>;
 
     /**
      * Load a template to the Printess editor and sets form fields.
      * Supports 'exchangeId' on document level. Docs with matching exchange-id's will transfer all user changes.
-     * @param templateNameOrToken can be either the name of a template (case sensitive) or the save-token received as a result of a user design save.
+     * @param templateName can be either the name of a template (case sensitive) or the save-token received as a result of a user design save.
      * @param mergeTemplates optional parameter to pass other templates to merge
      * @param formFields optional parameter to pass global form field values
-     * @param snippetPriceCategoryLabelssnippetPriceCategoryLabels optional parameter to pass snippetPriceCategoryLabels
-     * @param iFormFieldProperty optional form field properties to adjust after load
+     * @param snippetPriceCategoryLabels optional parameter to pass snippetPriceCategoryLabels
+     * @param formFieldProperties optional form field properties to adjust after load
      * @param clearExchangeCaches optional clear exchange cache and last loaded scope, so no data is exchanged when a new template is loaded. Defaults to false.
+     * @param templateVersion optional the template version to load, due to backward compatibility the default is "draft", please always use "published" in the live shops.
+     * #ai-api:core
      */
     loadTemplateAndFormFields(
         templateName: string,
@@ -1195,27 +1282,35 @@ export interface iPrintessApi {
         formFields?: iFormFieldNameValue[] | null,
         snippetPriceCategoryLabels?: string[] | null,
         formFieldProperties?: iFormFieldProperty[] | null,
-        clearExchangeCaches?: boolean): Promise<void>
+        clearExchangeCaches?: boolean,
+        templateVersion?: "draft" | "published"): Promise<void>
 
 
     /**
      * Centers the current spread in the printess view container
-     * #ai-api
+     * #ai-api:viewport-zoom
      */
     centerSpreadInView(part?: "entire" | "left-page" | "right-page"): void
 
     /**
-     * @deprecated
+     * Saves current artwork and returns a save-token.
+     * @deprecated Use `save()` instead.
+     * @see save
+     * #ai-api:core,legacy
      */
     saveJson(): Promise<string>;
     /**
-     * @deprecated
+     * Loads previously saved buyer artwork identified by a save-token.
+     * @deprecated Use `load()` instead.
+     * @see load
+     * #ai-api:core,legacy
      */
     loadJson(saveToken: string): Promise<void>;
 
 
     /**
      * Returns "true" if template has unsaved changes
+     * #ai-api:core
      */
     hasUnsavedChanges(): boolean
 
@@ -1223,6 +1318,7 @@ export interface iPrintessApi {
     /**
      * Saves current artwork
      * @returns `saveToken` which you can pass on `attachPrintess()` or `load()`
+     * #ai-api:core
      */
     save(): Promise<string>;
 
@@ -1230,34 +1326,35 @@ export interface iPrintessApi {
      * Saves current artwork and returns the saveToken and a basket thumbnail url.
      * The thumbnail url creation could involve cost, as it is rendered server side.
      * Makes the checkout process faster.
-     * @returns `saveToken` which you can pass on `attachPrintess()` or `load()`
+     * @returns `saveToken` which you can pass on `attachPrintess()` or `load()`, plus the `basketUrl` of the server-rendered thumbnail if available
+     * #ai-api:basket-pricing,core
      */
     saveAndGenerateBasketThumbnailUrl(maxWidth?: number, maxHeight?: number): Promise<{ saveToken: string, basketUrl?: string }>;
 
     /**
      * Saves current artwork to the shop
      * @param savedShopData relevant shop data for saving artwork
+     * #ai-api:core
      */
     saveTemplateToShop(savedShopData: ISavedShopData): Promise<void>;
 
     /**
      * Load saved artwork from the shop
-     * @param shopId
-     * @param shopUserId
-     * @param productId
+     * #ai-api:core
      */
     loadSavedShopTemplates(shopId: string, shopUserId: string, productId: string): Promise<{ entries: ISavedShopData[] }>;
 
     /**
      * Loads template or previously saved buyer artwork (`saveToken`)
      * @param templateNameOrSaveToken a templateName or a `saveToken` you have received from basket- or back-callback or from `save()` call
+     * #ai-api:core
      */
     load(templateNameOrSaveToken: string, mode?: "auto" | "loadAlwaysFromServer"): Promise<void>;
 
 
     /**
-     * Expects a apreviously saved buyer artwork identified by a saveToken and ensures that this work will never be deleted from DB
-     * @param saveToken
+     * Expects a previously saved buyer artwork identified by a saveToken and ensures that this work will never be deleted from DB
+     * #ai-api:core
      */
     unexpireJson(saveToken: string): Promise<void>;
 
@@ -1265,10 +1362,11 @@ export interface iPrintessApi {
     /**
      * Should be called before redirecting to a new template.
      * Will save the current state to the browser storage and apply it automatically to the next loaded template
-     * Applies Frame and Document`exchange-ids` as well as template-wide form fields
+     * Applies Frame and Document `exchange-ids` as well as template-wide form fields
      * @param frames (default true) add frame exchange-ids (image, text, story)
      * @param documents (default true) add documents with exchange-ids
-     * @param formFields  (default true) add all user-defined from fields on template level
+     * @param formFields (default true) add all user-defined form fields on template level
+     * #ai-api:core
      */
     persistExchangeState(frames?: boolean, documents?: boolean, formFields?: boolean): Promise<void>
 
@@ -1277,6 +1375,7 @@ export interface iPrintessApi {
      * Method to merge the current document content on another document of the current template
      * @param targetDocId The id of the document to merge on
      * @param frames Which frames should be merged, default to "snippets" which means all frames placed as layout- or sticker-snippet. "all" will delete all frames in the target document before copying over the new frames.
+     * #ai-api:pages-documents
      */
     mergeCurrentDocumentToTargetDocument(targetDocId: string, frames: "all" | "snippets"): Promise<void>
 
@@ -1304,6 +1403,7 @@ export interface iPrintessApi {
 
     /**
      * Returns true if the `noBasketThumbnail` flag was set on attach.
+     * #ai-api:basket-pricing
      */
     noBasketThumbnail(): boolean
 
@@ -1349,6 +1449,11 @@ export interface iPrintessApi {
     getShopLoginCallback(): null | ((type: "register" | "login", saveToken: string, thumbnailUrl: string, displayName: string) => void);
 
     /**
+    * Returns the shop callback that needs to be called if the user clicks on load and selects a saved design
+    */
+    getShopDataLoadedCallback(): null | ((data: ISavedShopData) => void),
+
+    /**
       * Returns the `loadTemplateButtonCallback` you have set in `attachPrintess()`
       */
     getLoadTemplateButtonCallback(): null | (() => void);
@@ -1365,41 +1470,49 @@ export interface iPrintessApi {
 
     /**
      * For a11y, select next possible frame (on tab key)
+     * #ai-api:frames-selection
      */
     selectNextFrame(): boolean
 
     /**
      * For a11y, select prev possible frame (on shift+tab key)
+     * #ai-api:frames-selection
      */
     selectPrevFrame(): boolean
 
     /**
      * For a11y, select any possible frame when printess-component receives focus()
+     * #ai-api:frames-selection
      */
     selectFirstBuyerBoxOnFocus(): boolean
 
     /**
      * For a11y, rotate selected frame clockwise or counter clockwise
+     * #ai-api:frames-selection
      */
     rotateSelection(counterClockwise: boolean): boolean
 
     /**
      * For a11y, resize selected frame
+     * #ai-api:frames-selection
      */
     resizeSelection(dimension: "height" | "width", mode: "grow" | "shrink"): boolean
 
     /**
      * For a11y, mirror selected frame vertically or horizontally
+     * #ai-api:frames-selection
      */
     mirrorSelection(axis: "x" | "y"): boolean
 
     /**
      * For a11y, edit selected frame inline, if possible
+     * #ai-api:frames-selection
      */
     editSelection(): boolean
 
     /**
-     * For a11y, move selected frame within layers, if possible. Moves all the way if "toEnd" is true; toEnd default: boolean
+     * For a11y, move selected frame within layers, if possible. Moves all the way to the front/back if `toEnd` is true.
+     * #ai-api:frames-selection
      */
     moveSelectionLayer(direction: "front" | "back", toEnd?: boolean): boolean
 
@@ -1410,49 +1523,60 @@ export interface iPrintessApi {
 
     /**
      * Clears current printess frames selection and shows document-wide properties like form fields.
-     * #ai-api
+     * #ai-api:frames-selection
      */
     clearSelection(): Promise<void>;
 
     /**
      * Clears current printess frames selection only if active and does not re-center the spread
-     * #ai-api
+     * #ai-api:frames-selection
      */
     clearSelectionKeepZoom(): Promise<void>;
 
     /**
      * Forces selection change callback against buyer side ui
-     * #ai-api
+     * #ai-api:frames-selection
      */
     fireSelectionChangeCallback(forceInLegacyUi?: boolean): Promise<void>;
 
     /**
      * Deletes all selected frames which are allowed to be removed by the buyer
-     * #ai-api
+     * #ai-api:frames-selection
      */
     deleteSelectedFrames(): Promise<boolean>;
 
     /**
      * Select frame by propertyId. Fires a subsequent selection changed callback.
-     * #ai-api
+     * #ai-api:frames-selection
      */
     selectFrames(propertyId: string): Promise<void>;
 
     /**
      * Select frames by class name. Fires a subsequent selection changed callback.
-     * #ai-api
+     * #ai-api:frames-selection
      */
     selectFramesByClass(className: string): Promise<void>;
 
     /**
-     * @deprecated WAS A TYPO IN THE NAME
+     * Selects every frame on the current spread that carries this exchange-id - the id used to hand
+     * content from one layout snippet to the next. The id may sit on the frame as Exchange Image,
+     * Exchange Text or Exchange Story, so an image frame and a text frame sharing an id are both
+     * selected. An empty id selects nothing. Fires a subsequent selection changed callback.
+     * #ai-api:frames-selection
+     */
+    selectFramesByExchangeId(exchangeId: string): Promise<void>;
+
+    /**
      * Assign a specified image to frames. The image is selected by id. You can specify the search scope where to look for frames.
-    * @param imageId The id of the image you want to assign.
-    * @param className The class name to search for in frames.
-    * @param searchScope The scope to search frames in.
-    * "spread" only looks for matching frames on the currently visible spread.
-    * "document" only looks for matching frames on the currently visible document.
-    * "template" looks for matching frames in the whole template.
+     * @param imageId The id of the image you want to assign.
+     * @param className The class name to search for in frames.
+     * @param searchScope The scope to search frames in.
+     * "spread" only looks for matching frames on the currently visible spread.
+     * "document" only looks for matching frames on the currently visible document.
+     * "template" looks for matching frames in the whole template.
+     * @deprecated Typo in the name ("assing") â€” use assignImageByIdToFramesWithClass() instead, it is identical.
+     * @see assignImageByIdToFramesWithClass
+     * #ai-api:images-editing,legacy
      */
     assingImageByIdToFramesWithClass(imageId: string, className: string, searchScope: "spread" | "document" | "template"): Promise<void>;
 
@@ -1464,7 +1588,7 @@ export interface iPrintessApi {
     * "spread" only looks for matching frames on the currently visible spread.
     * "document" only looks for matching frames on the currently visible document.
     * "template" looks for matching frames in the whole template.
-    * #ai-api
+    * #ai-api:images-editing
      */
     assignImageByIdToFramesWithClass(imageId: string, className: string, searchScope: "spread" | "document" | "template"): Promise<void>;
 
@@ -1472,7 +1596,7 @@ export interface iPrintessApi {
      * Assign a specified image to frames. The image is selected by id. You can specify the search scope where to look for frames.
     * @param imageId The id of the image you want to assign.
     * @param frameNameOrTitle The JsName or Title of the frame
-    * #ai-api
+    * #ai-api:images-editing
      */
     assignImageByIdToFrameByNameOrTitle(imageId: string, frameNameOrTitle: string): Promise<void>
 
@@ -1480,21 +1604,23 @@ export interface iPrintessApi {
     /**
      * Returns first iExternalImage found for class name
      * @param className
-     * #ai-api
+     * @deprecated Misleading name (does not return a name) â€” use getImageByClassName() instead, it is identical.
+     * @see getImageByClassName
+     * #ai-api:images-editing,legacy
      */
     getImageNameByClassName(className: string): iExternalImage & { placement: "fit" | "fill" } | null
 
     /**
      * Returns first iExternalImage found for class name
      * @param className
-     * #ai-api
+     * #ai-api:images-editing
      */
     getImageByClassName(className: string): iExternalImage & { placement: "fit" | "fill" } | null
 
     /**
      * Returns first iExternalImage found for frame jsName or Title
      * @param frameNameOrTitle jaName or Title of a frame. JsName is checked first.
-     * #ai-api
+     * #ai-api:images-editing
      */
     getImageByFrameName(frameNameOrTitle: string): iExternalImage & { placement: "fit" | "fill" } | null
 
@@ -1502,26 +1628,26 @@ export interface iPrintessApi {
     /**
      * Returns image cluster for all spreads of a document with image Id and thumbUrl
      * @param docId The Id of the document for which to get the images per spread
-     * #ai-api
+     * #ai-api:photobook
      */
     getImagesBySpread(docId: string): { spreadId: string; images: { imageId: string; thumbUrl: string; }[] }[] | null
 
     /**
      * Goes to the spread where the selected image is placed
-     * #ai-api
+     * #ai-api:photobook
      */
     goToImageInBook(imageId: string): void
 
     /**
      * Looks up image by name - case insensitive
-     * #ai-api
+     * #ai-api:images-upload
      */
     getImageByName(name: string): iExternalImage | null
 
     /**
      * Gets the geometry of a specific frame looked up by name or title.
      * Returns null if no frame is selected
-     * #ai-api
+     * #ai-api:frames-selection
      */
     getFramePositionByName(frameNameOrTitle: string): {
         left: number,
@@ -1539,7 +1665,7 @@ export interface iPrintessApi {
     /**
       * Gets the geometry of the current selected frame or frame-group
       * Returns null if no frame is selected
-      * #ai-api
+      * #ai-api:frames-selection
       */
     getSelectionPosition(): {
         left: number,
@@ -1558,19 +1684,29 @@ export interface iPrintessApi {
      * The current selection of frames (one or more) will be positioned depending
      * on the position values you provide. (Just specify only the values you want to modify)
      *
+     * All values are absolute pixels of the frame's top-left corner, in the same space
+     * getSelectionPosition() returns â€” independent of the frame's own anchor.
+     *
      * Sample code moves the frame 50px to the right:
      * ```
     const pos = api.getSelectionPosition();
     pos.left += 50;
     await api.transformSelection(pos);
      * ```
-     * #ai-api
+     * Values can be a number (always pixels) or a Length string: "120px", "5cm", "10mm",
+     * "0.5inch", "12pt", "50%" or "=<equation>". A unitless string like "100" uses the
+     * current document's unit. Percent values resolve against the parent's matching axis.
+     *
+     * Note: anchorX/anchorY/rotationPositionX/rotationPositionY are currently ignored â€”
+     * they exist so the result of getSelectionPosition() can be passed in unchanged.
+     * The frame keeps its configured anchor.
+     * #ai-api:frames-selection
      */
     transformSelection(position: {
-        left?: number,
-        top?: number,
-        width?: number,
-        height?: number,
+        left?: number | string,
+        top?: number | string,
+        width?: number | string,
+        height?: number | string,
         anchorX?: "left" | "center" | "right",
         anchorY?: "top" | "middle" | "bottom",
         rotation?: number,
@@ -1581,14 +1717,26 @@ export interface iPrintessApi {
     /**
      * A single frame with "name" will be positioned depending
      * on the px position values you provide. (Just specify only the values you want to modify)
-     * #ai-api
+     *
+     * Values are absolute pixels of the frame's top-left corner. The frame's own anchors
+     * are read and kept, so a center/right/bottom pinned frame stays pinned and does not
+     * move on the axes you omit. Works without selecting the frame â€” the buyer's current
+     * selection is not touched â€” and also finds frames on other spreads/documents.
+     *
+     * Values can be a number (always pixels) or a Length string: "120px", "5cm", "10mm",
+     * "0.5inch", "12pt", "50%" or "=<equation>". A unitless string like "100" uses the
+     * current document's unit. Percent values resolve against the parent's matching axis.
+     *
+     * Note: anchorX/anchorY/rotationPositionX/rotationPositionY are currently ignored;
+     * the frame keeps its configured anchor.
+     * #ai-api:frames-selection
      */
     transformFrame(o: {
         name: string,
-        left?: number,
-        top?: number,
-        width?: number,
-        height?: number,
+        left?: number | string,
+        top?: number | string,
+        width?: number | string,
+        height?: number | string,
         anchorX?: "left" | "center" | "right",
         anchorY?: "top" | "middle" | "bottom",
         rotation?: number,
@@ -1638,26 +1786,31 @@ export interface iPrintessApi {
 
     /**
      * Indicates if a selected image frame can be splitted in certain directions
+     * #ai-api:layouts-snippets
      */
     hasScissorMenu(): "never" | "horizontical" | "vertical" | "both"
 
     /**
      * Indicates if a splitter cell is selected
+     * #ai-api:layouts-snippets
      */
     hasSplitterMenu(): boolean
 
     /**
-     * Indicates if a splitter cell is selected
+     * Indicates if splitter text snippets are available
+     * #ai-api:layouts-snippets
      */
     hasSplitterTextSnippets(): boolean
 
     /**
      * number of active splitter edges
+     * #ai-api:layouts-snippets
      */
     splitterEdgesCount(): number
 
     /**
-     * Indicate if the template has static image filters to diplay, like AI-enhancement for example
+     * Indicate if the template has static image filters to display, like AI-enhancement for example
+     * #ai-api:images-editing
      */
     hasStaticImageFilters(): boolean
 
@@ -1677,51 +1830,62 @@ export interface iPrintessApi {
     /**
      * Split an image frame that has splitter option turned on
      * @param direction is either horizontal or vertical depending on how an image should be splitted
+     * #ai-api:layouts-snippets
      */
     splitFrame(direction: "horizontal" | "vertical"): Promise<void>
 
     /**
      * Selects all frames which are marked as **background**
+     * #ai-api:layouts-snippets
      */
     selectBackground(): Promise<void>;
 
     /**
-     * Indicates if the current spread has editable background frames -> OLD version returns false for backgroundTab feature
+     * Indicates if the current spread has editable background frames.
+     * @deprecated Old background handling; returns false when the background-layouts-tab feature is used. Use hasBackgroundLayoutsTab instead.
+     * @see hasBackgroundLayoutsTab
+     * #ai-api:layouts-snippets,legacy
      */
     hasBackground(): boolean
 
     /**
-     * Indicates if the current spread background layouts
+     * Indicates if the current spread has background layouts (background-tab feature)
+     * #ai-api:layouts-snippets
      */
     hasBackgroundLayoutsTab(): boolean
 
     /**
-     * Indicates if the current spread background layouts
+     * Loads all background layout snippets for the background-layouts tab (see hasBackgroundLayoutsTab)
+     * #ai-api:layouts-snippets
      */
     loadBackgroundLayouts(): Promise<iExternalSnippet[]>
 
     /**
      * Returns all background Frame Color Properties
+     * #ai-api:layouts-snippets
      */
     getBackgroundColorProperties(): iExternalProperty[]
 
     /**
      * Indicates if background frames are selected
+     * #ai-api:layouts-snippets
      */
     isBackgroundSelected(): boolean
 
     /**
-     * Selects a spread and brings it into view. spread-index is zero based and even a facing page counts as a single spread. You can pass the focus area in the `part`parameter.
+     * Selects a spread and brings it into view. spread-index is zero based and even a facing page counts as a single spread. You can pass the focus area in the `part` parameter.
      * @param spreadIndex zero-based
      * @param part  "entire" | "left-page" | "right-page"
+     * #ai-api:pages-documents
      */
     selectSpread(spreadIndex: number, part?: "entire" | "left-page" | "right-page"): Promise<void>;
 
     /**
-     * Selects a document and a spread and brings it into view. spread-index is zero based and even a facing page counts as a single spread. You can pass the focus area in the `part`parameter.
+     * Selects a document and a spread and brings it into view. spread-index is zero based and even a facing page counts as a single spread. You can pass the focus area in the `part` parameter.
      * @param docIdOrName ID or Name of document to select
      * @param spreadIndex zero-based
      * @param part  "entire" | "left-page" | "right-page"
+     * #ai-api:pages-documents
      */
     selectDocumentAndSpread(docIdOrName: string, spreadIndex: number, part?: "entire" | "left-page" | "right-page"): Promise<void>;
 
@@ -1733,116 +1897,140 @@ export interface iPrintessApi {
     /**
      * If available, selects the first page of the book-inside document
      * @param createThumbnailBeforeSwitch helpfull when triggered on FF change to ensure that the current spread thumbnail gets updated before switching to the inside pages
+     * #ai-api:photobook
      */
     selectBookDocument(createThumbnailBeforeSwitch: boolean): Promise<boolean>
 
     /**
-     * Retrieves current documen id, returns empty string if doc is not yet loaded.
+     * Retrieves current document id, returns empty string if doc is not yet loaded.
+     * #ai-api:pages-documents
      */
     getCurrentDocumentId(): string
 
     /**
+     * Returns true if the currently selected document is an actual photo-print document
+     * (neither the primary document nor the "photo-template").
+     * @deprecated The name violates the camelCase convention. A corrected alias isValidSinglePhotoPrintSelected() is planned but does not exist yet â€” keep using this method until it lands.
+     * #ai-api:single-photo-prints,legacy
+     */
+    IsValidSinglePhotoPrintSelected(): boolean
+
+    /**
      * Moves Printess focus to next page if available. Focus on single pages not spreads.
+     * #ai-api:pages-documents
      */
     nextPage(): Promise<void>;
 
     /**
      * Moves Printess focus to previous page if available. Focus on single pages not spreads.
+     * #ai-api:pages-documents
      */
     previousPage(): Promise<void>;
 
     /**
      * Retrieves information about the currently selected page.
-     * Returns natural page-number (current) staring from 1 (not spread-index), page-count (max) and flags if the current page isFirst or isLast page of the current document
+     * Returns natural page-number (current) starting from 1 (not spread-index), page-count (max) and flags if the current page isFirst or isLast page of the current document
      * First and last pages are identical to the spread in facing page documents.
      * Async version waits for Printess to be fully loaded.
+     * #ai-api:pages-documents
      */
     pageInfo(): Promise<{ current: number, max: number, isFirst: boolean, isLast: boolean, spreadId: string }>
 
 
     /**
      * Retrieves information about the currently selected page.
-     * Returns natural page-number (current) staring from 1 (not spread-index), page-count (max) and flags if the current page isFirst or isLast page of the current document
+     * Returns natural page-number (current) starting from 1 (not spread-index), page-count (max) and flags if the current page isFirst or isLast page of the current document
      * First and last pages are identical to the spread in facing page documents.
      * Sync version returns dummy data if Printess is not fully loaded.
+     * @param includeDocs If set to true, multiDoc and the isFirst/isLast flags take all editable documents into account, not only the current document.
+     * #ai-api:pages-documents
      */
     pageInfoSync(includeDocs?: boolean): { current: number, multiDoc: boolean, max: number, isFirst: boolean, isLast: boolean, spreadId: string, part: "left-page" | "right-page" | "entire", docId: string }
 
     /**
      * Returns information about all spreads of the displayed document
+     * #ai-api:pages-documents
      */
     getAllSpreads(): Array<iExternalSpreadInfo>;
 
     /**
      * Returns the current documents aspect
+     * #ai-api:pages-documents
      */
     getDocumentAspect(): "landscape" | "portrait"
 
     /**
      * Returns the current document size in pixel
+     * #ai-api:pages-documents
      */
     getDocumentSize(): { width: number, height: number } | null
 
     /**
      * Returns the current spread size including placement rect in pixel
+     * #ai-api:pages-documents
      */
     getCurrentSpreadSize(): { width: number, height: number } | null
 
     /**
      * Returns information about all spreads of ALL buyer-editable documents
      * @param applyLockCoverInside (default is false) If set to "true" and the document has "lockCoverInside" enabled, the call returns the printed amount of spreads and pages
-     * #ai-api
+     * #ai-api:pages-documents
      */
     getAllDocsAndSpreads(applyLockCoverInside?: boolean): Array<iExternalDocAndSpreadInfo>;
 
     /**
      * Returns total number of spreads (not pages)
-     * #ai-api
+     * #ai-api:pages-documents
      */
     spreadCount(): number
 
     /**
      * On IOS returns if iphone has its keyboard expanded.
      * This can never be 100% accurate.
+     * #ai-api:viewport-zoom
      */
     isSoftwareKeyBoardExpanded(): boolean
 
     /**
-     * Returns true is the user has made edits on a spread.
+     * Returns true if the user has made edits on a spread.
      * @param spreadIdOrIndex: ID or Index of Spread to check for - if empty it checks for current spread
+     * @param documentName Optional document name; defaults to the current document
+     * #ai-api:pages-documents
      */
     hasBuyerContentEdits(spreadIdOrIndex?: string | number, documentName?: string): boolean
 
     /**
      * Returns on what side of the spread the user has content edits
-     * @param spreadId: ID of Spread to check for edits
-     * @param documentName The default value is ""
+     * @param spreadIdOrIndex: ID or Index of Spread to check for - if empty it checks for current spread
+     * @param documentName Optional document name; defaults to the current document
+     * #ai-api:pages-documents
      */
     hasBuyerContentEditsLeftRight(spreadIdOrIndex?: string | number, documentName?: string): { onLeftPage: boolean, onRightPage: boolean, onEntirePage: boolean }
 
 
     /**
-     * Returns true if any document has buyer text or image edits
+     * Returns true if any document has buyer content edits on any spread, or if any text form field value has been changed from its default.
+     * #ai-api:pages-documents
      */
     hasBuyerContentEditsInAnyDocumentOrFormField(): boolean
 
     /**
      * Returns only false if property refers to a formfield which is not visible, because it doesn' match a specific condition.
      * @param propertyId ID of property to check
-     * #ai-api
+     * #ai-api:form-fields
      */
     isPropertyVisible(propertyId: string, wasVisibleBefore?: boolean): boolean
 
     /**
      * Returns all available properties in the current document
-     * #ai-api
+     * #ai-api:frames-selection
      */
     getAllProperties(): Promise<Array<Array<iExternalProperty>>>;
 
     /**
      * Returns the name of a form field if property-id points to an existing form field
      * @param properyId External Property ID
-     * #ai-api
+     * #ai-api:form-fields,frames-selection
      */
     getFormFieldNameByExternalPropertyId(properyId: string): string | null
 
@@ -1854,14 +2042,14 @@ export interface iPrintessApi {
     /**
      * Returns a list of all available properties on a specific spread
      * @param spreadId
-     * #ai-api
+     * #ai-api:frames-selection
      */
     getAllPropertiesBySpreadId(spreadId: string): Promise<Array<Array<iExternalProperty>>>;
 
 
     /**
     * Returns a list of all required properties (async)
-     * #ai-api
+     * #ai-api:validation-errors
     */
     getAllRequiredProperties(): Promise<Array<Array<iExternalProperty>>>;
 
@@ -1873,7 +2061,11 @@ export interface iPrintessApi {
     /* returns if buyer ui shows sub document */
     showDocumentBackButton(): boolean
 
-    /** jumps back to last editable doc if in permanent group editing  */
+    /**
+     * Jumps back to last editable doc if in permanent group editing.
+     * Also used to return to the overview from a single-photo document opened via `openSinglePhotoDoc()`.
+     * #ai-api:pages-documents
+     */
     selectLastDocument(): Promise<void>
 
     /** get if mobile image crop mode is enabled and should show the circular image pan-icon */
@@ -1885,7 +2077,7 @@ export interface iPrintessApi {
     /**
     * Returns a list of all required properties on a specific spread (async)
     * @param spreadId
-     * #ai-api
+     * #ai-api:validation-errors
     */
     getAllRequiredPropertiesBySpreadId(spreadId: string): Promise<Array<Array<iExternalProperty>>>;
 
@@ -1964,7 +2156,7 @@ export interface iPrintessApi {
      * Creates a new cropped image and assigns it to the passed form-field. Takes the currently assigned image as master
      * @param propertyId id of a form-field-property (type of image-id) pointing to a valid image
      * @param box all box coordinates are expected to be in the range of 0 to 1
-     * #ai-api
+     * #ai-api:images-editing
      */
     cropImage(propertyId: string, box: { left: number, top: number, width: number, height: number }): Promise<iExternalImage | null>
 
@@ -1977,7 +2169,7 @@ export interface iPrintessApi {
     /**
      * Returns if property is a form field of type font
      * @param propertyId
-     * #ai-api
+     * #ai-api:form-fields
      */
     isFontFormField(propertyId: string): Promise<boolean>;
 
@@ -1986,12 +2178,14 @@ export interface iPrintessApi {
      * Sets the value of any top-level property passed to the external UI
      * @param propertyId
      * @param propertyValue Must be string and will be converted if neccessary
-     * #ai-api
+     * #ai-api:frames-selection,form-fields
      */
     setProperty(propertyId: string, propertyValue: string | number | iStoryContent): Promise<void | (iExternalImageScaleHints & { scale: number })>; // | Array<iExternalColorUpdate>>;
 
     /**
      * Sets a background color property by index
+     * @param mode apply the color to the current page ("page") or to all pages ("all")
+     * #ai-api:layouts-snippets
      */
     setBackgroundColor(colorIndex: number, propertyValue: string, mode: "page" | "all"): Promise<void>
 
@@ -1999,29 +2193,43 @@ export interface iPrintessApi {
      * Sets a list of paragraph texts at once.
      * @param propertyId
      * @param paragraphs list of paragraph values
-     * #ai-api
+     * #ai-api:text-editing
      */
     setStoryParagraphs(propertyId: string, paragraphs: Array<{ index: number, newValue: string }>): Promise<void>
 
     /**
      * Sets the value of a form field
+     * Important! setFormFieldValue should always be called with 'await' to make sure the change gets populated!
      * @param fieldName Name of the Form-Field or Form-Field Property-ID. If `name` is not found, Printess will try to find the Form-Field by its `label`. This fallback scenario is helpfull for shop integrations where the shop has no way to map labels to name.
      * @param newValue Must be string and will be converted if neccessary
-     * #ai-api
+     * #ai-api:form-fields
      */
     setFormFieldValue(fieldName: string, newValue: string): Promise<void>;
+
+    /**
+      * Retrieves the current value of a form field
+      * Not async and always reads the live document, so it is safe to call at any time - including
+      * from inside an already open dialog or panel, where `form.<name>` may still report the value
+      * from before your own setFormFieldValue().
+      * Returns `undefined` if no form field of that name exists. A `table` field returns its rows as
+      * an array, a `number` field a number, a `label` field always "", everything else a string.
+      * The value is unformatted, so it can be passed straight back into setFormFieldValue().
+      * @param fieldName Name of the Form-Field or Form-Field Property-ID. If `name` is not found, Printess will try to find the Form-Field by its `label`. This fallback scenario is helpfull for shop integrations where the shop has no way to map labels to name.
+      * #ai-api:form-fields
+      */
+    getFormFieldValue(fieldName: string): undefined | string | number | Array<Record<string, any>>;
 
 
     /**
      * Forces re-rendering of current document
-     * #ai-api
+     * #ai-api:viewport-zoom
      */
     reRender(): Promise<void>
 
     /**
      * Same like in the attach parameter, allows e.g. to modify list values in response to a user interaction.
      * @param formFieldProperties List of FormField-Names (key) and their respective properties to change
-     * #ai-api
+     * #ai-api:form-fields
      */
     setFormFieldProperties(formFieldProperties?: iFormFieldProperty[]): Promise<void>
 
@@ -2029,46 +2237,46 @@ export interface iPrintessApi {
      * Allows to set the disabled flag for certain items in a form field list.
      * @param ffName FF-Name to address
      * @param states List of value/disabled pairs
-     * #ai-api
+     * #ai-api:form-fields
      */
     setFormFieldListDisabledStates(ffName: string, states: Array<{ value: string, disabled: boolean }>): Promise<void>
 
     /**
      * Sets the number of inside pages of a book
      * @param bookInsidePages the number of pages the book should have. Must be >= 4.
-     * #ai-api
+     * #ai-api:photobook
      */
     setBookInsidePages(bookInsidePages: number): Promise<void>
 
     /**
      * Sets the spine width, could be any Length value, like an equation or a fixed value with unit.
      * @param formular like `=spine.pages * 0.3mm` or just `2cm`
-     * #ai-api
+     * #ai-api:photobook
      */
     setSpineFormular(formular: string): Promise<void>
 
     /**
      * Returns spine values for the first cover of a book
      * Return null if no cover can be found.
-     * #ai-api
+     * #ai-api:photobook
      */
     getSpine(): null | { formular: string, spine: { value: number, unit: string }, hinge: { value: number, unit: string } }
 
     /**
      * Sets the all spine related values.
-     * #ai-api
+     * #ai-api:photobook
      */
     adjustBook(spine: iExternalBookSettings): Promise<void>
 
     /**
      * Adjusts margin settings on the current document.
-     * #ai-api
+     * #ai-api:pages-documents
      */
     adjustMargins(settings: iExternalMarginSettings): Promise<void>
 
     /**
      * Returns the current margin settings of the current document.
-     * #ai-api
+     * #ai-api:pages-documents
      */
     getMargins(): iExternalMarginSettings
 
@@ -2144,13 +2352,26 @@ export interface iPrintessApi {
      * @param documentName Name of the document to change
      * @param widthInDocUnit 12 equals e.g. "12cm"
      * @param heightInDocUnit 12 equals e.g. "12cm"
-     * #ai-api
+     * #ai-api:pages-documents
      */
     setDocumentSize(documentName: string, widthInDocUnit: number, heightInDocUnit: number): Promise<void>
 
     /**
+     * Sets the four bleeds of a specific document. Values are in the document's unit
+     * (e.g. 1 equals "1cm" when the document unit is cm). "inside"/"outside" are the
+     * binding-relative left/right edges for facing-page documents.
+     * @param documentName Name of the document to change
+     * @param bleedInside Inside (spine-side) bleed
+     * @param bleedTop Top bleed
+     * @param bleedOutside Outside bleed
+     * @param bleedBottom Bottom bleed
+     * #ai-api:pages-documents
+     */
+    setDocumentBleed(documentName: string, bleedInside: number, bleedTop: number, bleedOutside: number, bleedBottom: number): Promise<void>
+
+    /**
      * Looks for sub doc in current selection, resizes it and also resize referencing frame
-     * #ai-api
+     * #ai-api:pages-documents,frames-selection
      */
     resizeSubDocAndBox(newWidth: number, newHeight: number, boxToDocScale: number): Promise<boolean>
 
@@ -2162,14 +2383,14 @@ export interface iPrintessApi {
 
     /**
      * Indicates if form fields are available
-     * #ai-api
+     * #ai-api:form-fields
      */
     hasFormFields(): boolean
 
     /**
      * Retrieves all Form Fields for UI rendering
      * @param tabId optional to get FFs for certain tab only
-     * #ai-api
+     * #ai-api:form-fields
      */
     getFormFieldsAsProperties(tabId?: "#FORMFIELDS" | "#FORMFIELDS1" | "#FORMFIELDS2"): iExternalProperty[]
 
@@ -2190,8 +2411,10 @@ export interface iPrintessApi {
     showPhotoTab(): boolean
 
     /**
-    * Indicates if cur spread has editable text or images with properties suitable for the frame bar
-    */
+     * Indicates if current spread has editable text or images with properties suitable for the frame bar
+     * @returns Separate flags for editable `text` and `image` frames on the current spread.
+     * #ai-api:frames-selection
+     */
     currentSpreadHasEditableFrames(): { text: boolean, image: boolean }
 
     /**
@@ -2203,7 +2426,7 @@ export interface iPrintessApi {
      * Returns the current form field value and its possible list values if available
      * Important: Only returns values of price-relevant form-fields!
      * @param fieldName Name of the Form-Field or Form-Field Property-ID
-     * #ai-api
+     * #ai-api:form-fields
      */
     getFormField(fieldName: string): Promise<{
         value: null | string | number | Array<Record<string, any>>,
@@ -2223,13 +2446,13 @@ export interface iPrintessApi {
 
     /** Looks up a Form Field with fieldName and if the Form Field has a selected image in its list
      * or if the Form Field is of type "imageId" it returns the selected image.
-     * #ai-api
+     * #ai-api:form-fields
      */
     getFormFieldSelectedImage(fieldName: string): iExternalImage | undefined
 
     /**
      * Returns a list of images from the Form Field Select List
-     * #ai-api
+     * #ai-api:form-fields
      */
     getFormFieldImageList(fieldName: string): Array<iExternalFormFieldImageListItem>
 
@@ -2239,7 +2462,7 @@ export interface iPrintessApi {
      * `await api.openPanel()` to obtain the container, and manages its own re-renders / internal
      * state from there on (mirroring the `api.openDialog()` pattern).
      * Returns `undefined` on success, or a human-readable error string on failure.
-     * #ai-api
+     * #ai-api:custom-ui,form-fields
      */
     mountFormFieldPanel(formFieldName: string, container: HTMLDivElement): string | undefined
 
@@ -2247,7 +2470,7 @@ export interface iPrintessApi {
      * Inside a `panel_*` script body, returns the mount container the panel should render into.
      * Mirrors `openDialog()` without buttons or headline. Must be called while a panel script is
      * being invoked by the host; throws otherwise.
-     * #ai-api
+     * #ai-api:custom-ui
      */
     openPanel(): Promise<HTMLDivElement>
 
@@ -2260,7 +2483,7 @@ export interface iPrintessApi {
      * the value is overwritten and the schema is left alone â€” pick a unique name per panel.
      *
      * Returns `undefined` on success, or a human-readable error string on failure.
-     * #ai-api
+     * #ai-api:custom-ui,form-fields
      */
     writeStateToFormField(fieldName: string, state: unknown): Promise<string | undefined>
 
@@ -2268,7 +2491,7 @@ export interface iPrintessApi {
      * Companion to `writeStateToFormField` â€” reads and JSON-parses the value back. Returns the
      * parsed state, or `undefined` when the field does not exist, is empty, or is not valid JSON.
      * Never throws; safe to call eagerly when a panel mounts.
-     * #ai-api
+     * #ai-api:custom-ui,form-fields
      */
     readStateFromFormField<T = unknown>(fieldName: string): T | undefined
 
@@ -2296,7 +2519,7 @@ export interface iPrintessApi {
      * uiHelper contains a method to create a slider control from this model
      * @param property
      * @param metaProperty
-     * #ai-api
+     * #ai-api:frames-selection
      */
     getNumberUi(property: iExternalProperty, metaProperty?: iExternalMetaPropertyKind | null): {
         meta: iExternalNumberUi;
@@ -2310,7 +2533,7 @@ export interface iPrintessApi {
      * @param property
      * @param metaProperty
      * @param value
-     * #ai-api
+     * #ai-api:frames-selection
      */
     setNumberUiProperty(property: iExternalProperty, metaProperty: iExternalMetaPropertyKind | null, value: number): Promise<void>;
 
@@ -2348,7 +2571,7 @@ export interface iPrintessApi {
      * @param propertyId
      * @param name
      * @param value
-     * #ai-api
+     * #ai-api:images-editing
      */
     setImageMetaProperty(propertyId: string, name: "scale" | "sepia" | "brightness" | "saturate" | "invert" | "contrast" | "grayscale" | "vivid" | "hueRotate", value: string | number): Promise<void>;
 
@@ -2356,7 +2579,7 @@ export interface iPrintessApi {
      * Resets all image filters (meta-values) of an image-property to default
      * @param propertyId
      * @param imageMeta optional parameter, can be used to set all image-filters to specific values.
-     * #ai-api
+     * #ai-api:images-editing
      */
     resetImageFilters(
         propertyId: string,
@@ -2371,37 +2594,94 @@ export interface iPrintessApi {
 
     /**
      * Retrieve image borders on current spread
-     * #ai-api
+     * #ai-api:images-editing
      */
     getImageBordersOnCurrentSpread(): { innerWidth: number, outerWidth: number, innerColor: string, outerColor: string }
 
     /**
      * Sets image inner and outer border for all images on current spread
      * Image borders are only rendered for non images without effects or warps or path-geometrie
-     * #ai-api
+     * #ai-api:images-editing
      */
     setImageBordersOnCurrentSpread(b: { innerWidth?: number, outerWidth?: number, innerColor?: string, outerColor?: string }, onlySplitterFrames: boolean): Promise<void>
 
 
-    /** indicates single photo print order mode */
+    /**
+     * Indicates single photo print order mode: returns true when the template's single-photo mode is set to "photo".
+     * #ai-api:single-photo-prints
+     */
     isSinglePhotoMode(): boolean
 
-    /** indicates single photo print order mode */
+    /**
+     * Indicates photo-wall order mode: returns true when the template's single-photo mode is set to "wall".
+     * #ai-api:single-photo-prints
+     */
     isPhotoWallMode(): boolean
 
-    /** maximum number images  */
+    /**
+     * Maximum number of images allowed in single-photo or photo-wall mode.
+     * Returns 99 while the template is not yet loaded.
+     * #ai-api:single-photo-prints
+     */
     singlePhotoMaxImages(): number
 
-    /** minimum number of images  */
+    /**
+     * Minimum number of images required in single-photo or photo-wall mode.
+     * Returns 99 while the template is not yet loaded.
+     * #ai-api:single-photo-prints
+     */
     singlePhotoMinImages(): number
 
-    /** Set per-doc single photo counter */
+    /**
+     * Single photo "photo" mode: whether the buyer may open a photo-print for full document editing.
+     * #ai-api:single-photo-prints
+     */
+    singlePhotoCanEditDocument(): boolean
+
+    /**
+     * Sets the per-document print count of a single photo-print document (values below 1 are clamped to 1).
+     * Persists the change and fires the external price-change callback.
+     * @param docId id of the photo-print document
+     * @param count new print count for this document
+     * #ai-api:single-photo-prints
+     */
     setSinglePhotoCount(docId: string, count: number): Promise<void>
 
-    /** Get per-doc single photo counter */
+    /**
+     * Gets the per-document print count of a single photo-print document.
+     * @returns the count, or -1 if the document cannot be found
+     * #ai-api:single-photo-prints
+     */
     getSinglePhotoCount(docId: string): number
 
-    /** wall image mode only, starts arrangement */
+    /**
+     * True when the "photo-template" document offers layout-snippets for single photo prints.
+     * #ai-api:single-photo-prints
+     */
+    hasSinglePhotoLayoutSnippets(): boolean
+
+    /**
+     * Loads the layout-snippet clusters defined on the first spread of the "photo-template" document.
+     * These are the layouts a buyer can apply to their single photo prints.
+     * Returns an empty array when not in single-photo ("photo") mode.
+     * #ai-api:single-photo-prints
+     */
+    getSinglePhotoLayoutSnippets(): Promise<Array<iExternalSnippetCluster>>
+
+    /**
+     * Single-photo mode ("photo") only: applies a layout-snippet to the targeted photo-print
+     * document(s), takes over the previously placed image and refreshes the overview thumbnails.
+     * @param snippetUrl the layout-snippet to apply
+     * @param allDocs apply to every photo-print document (true) or only the current one (false)
+     * #ai-api:single-photo-prints
+     */
+    insertSinglePhotoLayoutSnippet(snippetUrl: string, allDocs: boolean): Promise<void>
+
+    /**
+     * Photo-wall mode only: starts the automatic arrangement of the wall images.
+     * @returns true if the arrangement ran, false when not in photo-wall mode
+     * #ai-api:single-photo-prints
+     */
     arrangeWallImages(): Promise<boolean>
 
     /**
@@ -2412,7 +2692,7 @@ export interface iPrintessApi {
      * @param propertyId Auto assigns the first image to a specific frame identified via property Id. Pass "NONE" to NOT assign the image.
      * @param progressCallback
      * @param isHandwritingImage Toggle the current textframe to handwriting mode und assigns image
-     * #ai-api
+     * #ai-api:images-upload,images-editing
      */
     uploadAndDistributeImages(files: FileList | null, propertyId: string, progressCallback?: (percent: number, state: "upload" | "optimization") => void, isHandwritingImage?: boolean): Promise<iExternalImage[]>;
 
@@ -2437,18 +2717,23 @@ export interface iPrintessApi {
     /**
      * If no selection is present this call finds the first unassigned image and assigns it
      * If all images are already assigned it takes the first image and re-assigns it
-     * #ai-api
+     * #ai-api:images-editing,generative-ai
      */
     assignImageToNextPossibleFrame(imgId: string, origin?: "upload" | "thumb-click"): Promise<boolean>
 
     /**
      * Assigns image found by name to single selected frame only.
+     * @param imageName Name of the image to assign
+     * @param options Optional placement ("fit" | "fill"), focal point and onlyAssignToAllowedImages flag; may be null
+     * @deprecated The name carries a typo ("assing"). A corrected alias assignImageByNameToSelection() is planned but does not exist yet â€” keep using this method until it lands.
+     * #ai-api:images-editing,legacy
      */
     assingImageByNameToSelection(imageName: string, options: null | { placement?: "fit" | "fill", horizontalFocalPoint?: number, verticalFocalPoint?: number, onlyAssignToAllowedImages?: boolean }): Promise<boolean>
 
     /**
      * Will use current selection or insert a new frame on the spread.
-     * @param imageId Existing image-id to assign
+     * @param imgId Existing image-id to assign
+     * #ai-api:images-editing
      */
     assignImageToSelectionOrInsertAsNewFrame(imgId: string): Promise<void>
 
@@ -2456,46 +2741,53 @@ export interface iPrintessApi {
      * Will insert a new image frame on the current spread as a sticker;
      * Returns false if image was not found.
      * @param imageId Existing image-id to assign
-     * #ai-api
+     * #ai-api:images-editing
      */
     insertImageFrame(imageId: string): Promise<boolean>
 
     /**
-     * transfers to uploaded images from one image frame to another.
+     * Transfers the uploaded image from one image frame to another.
      * Also applies assign-actions if applicable
      * @param fromBoxName Name of from frame
      * @param toBoxName Name of to frame
+     * @param options Optional placement ("fit" | "fill") and focal point
+     * #ai-api:images-editing
      */
     transferImageByFrameName(fromBoxName: string, toBoxName: string, options?: { placement: "fit" | "fill", horizontalFocalPoint: number, verticalFocalPoint: number }): Promise<boolean>
 
     /**
      * Returns true if the magic photobook wizzard flag is enabled
+     * #ai-api:photobook
      */
     isMagicPhotobook(): boolean
 
     /**
      * Returns current photo distribution mode
+     * #ai-api:photobook
      */
     getPhotobookDistributionMode(): PhotobookDistribution
 
     /**
      * Returns true if the cover images should not appear again on the inside of the photobook
+     * #ai-api:photobook
      */
     useExclusiveCoverImages(): boolean
 
     /**
      * Returns true if the photobook uses a debossed cover
+     * #ai-api:photobook
      */
     useDebossedCover(): boolean
 
     /**
      * Number of images (0-4) distributed onto a debossed cover
+     * #ai-api:photobook
      */
     debossedCoverImageCount(): number
 
     /**
      * Returns true if the image border button should be shown in the buyer UI.
-     * #ai-api
+     * #ai-api:images-editing
      */
     allowSimpleImageBorder(): boolean
 
@@ -2510,9 +2802,14 @@ export interface iPrintessApi {
     showSimplifiedPagesView(): iShowPagesPreviewMode
 
     /**
-     * Returns headline to display in wizard.
+     * Returns headline to display in wizard for magic photobooks.
      */
     getMagicPhotobookWizardHeadline(): string;
+
+    /**
+     * Returns headline to display in wizard for freestyle photobooks.
+     */
+    getFreestylePhotobookWizardHeadline(): string;
 
     /**
      * Returns tab displayed in magic photobook settings
@@ -2522,28 +2819,35 @@ export interface iPrintessApi {
     /**
      * Select new photobook theme
      * @param name Name of photobook theme
+     * #ai-api:photobook
      */
     selectPhotobookTheme(name: string): Promise<iPhotobookTheme>
 
     /**
      * Retrieves id of current photobook theme keyword menu
+     * #ai-api:photobook
      */
-    getPhotobookThemeMenuId(): string  /**
+    getPhotobookThemeMenuId(): string
 
-  /**
-   * Retrieves name of current photobook theme
-   */
-    getSelectedPhotobookThemeName(): string  /**
+    /**
+     * Retrieves name of current photobook theme
+     * #ai-api:photobook
+     */
+    getSelectedPhotobookThemeName(): string
 
-  /**
-   * Retrieves current photobook theme object
-   */
+    /**
+     * Retrieves current photobook theme object
+     * #ai-api:photobook
+     */
     getSelectedPhotobookTheme(): Promise<iPhotobookTheme>
 
     /**
      * Load all available photobook themes
+     * @param keywords Optional: only return themes matching the given keywords
+     * @param reload Optional: forces a fresh reload of the theme list
+     * #ai-api:photobook
      */
-    loadPhotobookThemeList(): Promise<iPhotobookThemeListEntryDto[]>
+    loadPhotobookThemeList(keywords?: string[], reload?: boolean): Promise<iPhotobookThemeListEntryDto[]>
 
     /**
      * Returns if text-editing should be displayed as overlay on desktop
@@ -2563,6 +2867,7 @@ export interface iPrintessApi {
     /**
      * Check if image zoom is allowed
      * @param propertyId
+     * #ai-api:images-editing
      */
     canScale(propertyId: string): boolean;
 
@@ -2570,7 +2875,7 @@ export interface iPrintessApi {
      * Rotates an image by 90deg and saves the result as new image and assigns rotated image to frame automatically.
      * @param propertyId
      * @param angle
-     * #ai-api
+     * #ai-api:images-editing
      */
     rotateImage(propertyId: string, angle: "0" | "90" | "180" | "270", crop?: { ws: number, hs: number, px: number, py: number }): Promise<iExternalImage | null>;
 
@@ -2578,7 +2883,7 @@ export interface iPrintessApi {
      * Rotates image with any given angle.
      * @param propertyId
      * @param rotation
-     * #ai-api
+     * #ai-api:images-editing
      */
     rotateAndCropImage(propertyId: string, rotation: iExternalImageRotation): Promise<iExternalImage | null>
 
@@ -2587,16 +2892,16 @@ export interface iPrintessApi {
     * @param url The url to the image you want to import to Printess.
     * @param assignToFrameOrNewFrame Default is `true`. Assign this image to the current frame, or create a new frame in case none is selected.
     * @param propertyId (optional) if a propertyId is submitted, printess will assign the image to that particular frame
-     * #ai-api
+     * #ai-api:images-upload
     */
     importImageFromUrl(url: string, assignToFrameOrNewFrame?: boolean, propertyId?: string): Promise<iExternalImage | null>;
 
     /**
-     * #ai-api
+     * #ai-api:images-upload
      */
     getSerializedImage(imageId: string): string | null;
     /**
-     * #ai-api
+     * #ai-api:images-upload
      */
     addSerializedImage(imageJson: string, assignToFrameOrNewFrame?: boolean): Promise<iExternalImage>;
 
@@ -2604,24 +2909,47 @@ export interface iPrintessApi {
      * Imports up to 50 previously uploaded user images. You can either provide the shopUserId and basketId to load images uploaded in this basket session,
      * or only provide the shopUserId to load the images from the user.
      * Please make sure you are using non guessable shop user and basket ids.
+     * #ai-api:images-upload
      */
     importUserUploadedImages(shopUserId?: string, basketId?: string): Promise<iExternalImage[]>;
 
     /**
+     * Imports the given external images and optionally assigns them to frames.
      * @param assignToFrameOrNewFrame The default value is false
+     * #ai-api:images-upload
      */
     importImagesFromExternal(images: iImage[], assignToFrameOrNewFrame?: boolean): Promise<iExternalImage[]>;
 
     /**
      * Tells to render a new image after cropping even with no rotation
+     * #ai-api:images-editing
      */
     alwaysRenderCroppedImage(): boolean
 
     /**
      * generates AI image with various models
-     * #ai-api
+     * #ai-api:generative-ai
      */
     generateImage(model: iExternalGenImageModel, targetFrameName: string | null, action: Array<iExternalGenImageFollowUpAction>): Promise<{ resultImage: iExternalImage }>
+
+    /**
+     * Generates AI text with an Anthropic or OpenAI model and returns it as `{ text }`.
+     * One prompt in, one text out: the model has no tools, no skills and no memory of
+     * earlier calls, so it can only answer - it can never read or change the template.
+     * Consumes AI credits based on the tokens used.
+     * #ai-api:generative-ai
+     */
+    generateText(model: iExternalGenTextModel): Promise<{ text: string }>
+
+    /**
+     * Returns the AI prompt of the image currently placed in the given frame, wrapped as
+     * { prompt } â€” the text-to-image prompt, or the image-edit prompt if that is what
+     * created it, with any ${...} placeholders evaluated. Null if the frame holds no
+     * AI-generated image or the frame is not found.
+     * @param frameNameOrTitle js-name or title of the frame
+     * #ai-api:generative-ai
+     */
+    getImagePromptByFrameName(frameNameOrTitle: string): { prompt: string } | null
 
     /**
      * Returns not null if buyer should be able to use generative ai image creation
@@ -2655,7 +2983,9 @@ export interface iPrintessApi {
 
     /**
      * Sets image placement based on selection, can only handle a single selected image for now.
-     * @propertyId TODO: Support for propertyId will follow
+     * @param propertyId TODO: Support for propertyId will follow
+     * @returns Scale hints including the applied scale, when available
+     * #ai-api:images-editing
      */
     setImagePlacement(which: "fit" | "fill", propertyId?: string): Promise<void | (iExternalImageScaleHints & { scale: number })>
 
@@ -2676,7 +3006,11 @@ export interface iPrintessApi {
      * Updates the editor live as the response is received in chunks.
      *
      * @param promptForAI - Instructional prompt to guide the AI generation.
-     * #ai-api
+     *
+     * NEVER add an ai-api area tag to this method â€” not even the literal tag token inside this
+     * comment, which alone would emit it into core.d.ts. Document it here only. It drives the
+     * built-in AI text UI: it writes into a text property live and owns the editor while it
+     * streams. Scripts use generateText instead, which just returns the text.
      */
     generateLiveTextFromAI(pid: string, promptForAI: string, usePreviousText: boolean): Promise<void>;
 
@@ -2693,6 +3027,7 @@ export interface iPrintessApi {
 
     /**
      * returns if snippets are present on any spread in the template
+     * #ai-api:layouts-snippets
      */
     templateHasSnippets(): boolean
 
@@ -2727,22 +3062,26 @@ export interface iPrintessApi {
     applyNumOfColsToLayoutsDialogMobile(): boolean;
     /**
      * Returns if buyer is allowed to upload pdf files
+     * #ai-api:images-upload
      */
     allowPdfUpload(): boolean;
 
     /**
      * Returns if buyer is allowed to upload svg files
+     * #ai-api:images-upload
      */
     allowSvgUpload(): boolean;
 
     /**
      * Returns if buyer is only allowed to upload vector (svg) files
+     * #ai-api:images-upload
      */
     allowOnlyVectorImageUpload(): boolean;
 
     /**
      * automatically distribute images to frames on the cover document.
      * Returns a list of all applied image-ids.
+     * #ai-api:photobook
      */
     distributeImagesOnCover(images?: iExternalImage[]): Promise<Array<string>>
 
@@ -2750,22 +3089,26 @@ export interface iPrintessApi {
      * automatically distribute all non used uploaded images to frames which have not been assigned yet.
      * Returns a list of all applied image-ids.
      * Force needs to be true if "manual" distribution is active
+     * #ai-api:images-editing
      */
     distributeImages(force?: boolean): Promise<Array<string>>
 
     /**
      * check number of distributable image boxes
      * if greater than 1 return true
+     * #ai-api:images-editing
      */
     allowImageDistribution(): boolean
 
     /**
      * Tells UI to always show image distribution button.
+     * #ai-api:images-editing
      */
     showImageDistributionButton(): boolean
 
     /**
      * current image distribution mode set on template level
+     * #ai-api:images-editing
      */
     imageDistributionMode(): "distributeOnUpload" | "distributeToAllFrames" | "distributeManually"
 
@@ -2807,43 +3150,52 @@ export interface iPrintessApi {
 
     /**
      * returns true if a single frame with buyer side image upload allow is selected
+     * #ai-api:images-editing
      */
     currentSelectionAllowsImageUpload(): boolean
 
     /**
      * Tells UI to resize an image in the "My Photos" tab to fit within the bounds of its container with no cropping ("fit")
      * or to expand an image to fill the whole container potentially with cropping ("fill")
+     * #ai-api:images-upload
      */
     getImageThumbFitProperty(): "fill" | "fit"
 
     /**
      * Tells UI to show the image preview when hovering image thumbnail.
+     * #ai-api:images-upload
      */
     showImagePreviewOverlay(): boolean
 
     /**
      * Tells UI to show the image name under every image thumbnail.
+     * #ai-api:images-upload
      */
     showImageCaptions(): boolean
 
     /**
      * Tells UI to display upload button for image upload from mobile phone.
+     * #ai-api:images-upload
      */
     showMobileUploadButton(): boolean
 
     /**
      * Tells UI to display download button on image thumbnail.
+     * #ai-api:images-upload
      */
     allowImageDownload(): boolean
 
     /**
      * get a QR Code for uploading images on mobile phone
+     * Pass the returned channelId to startExternalImagePolling() to receive the uploaded images.
+     * #ai-api:images-upload
      */
     createExternalImageUploadChannel(): Promise<{ qr: HTMLImageElement, channelId: string }>
 
     /**
      * check for images uploaded from phone
-     * @param channeldId
+     * @param channeldId The channel id returned by createExternalImageUploadChannel()
+     * #ai-api:images-upload
      */
     startExternalImagePolling(channeldId: string, isHandwriting?: boolean, cancellationToken?: StoppingToken): void
 
@@ -2851,37 +3203,39 @@ export interface iPrintessApi {
      * delete buyer uploaded images that are not in use
      * Returns the number of successfully deleted images.
      * @param images array of images to be deleted
-     * #ai-api
+     * #ai-api:images-upload
      */
     deleteImages(images: Array<iExternalImage>): number
 
     /**
      * If property is empty it returns the list of buyer uploaded images.
      * @param propertyId id of property which shows the image list
-     * #ai-api
+     * #ai-api:images-upload
      */
     getImages(propertyId?: string): Array<iExternalImage>
 
     /**
      * Returns all buyer uploaded images including information if the image is in use
-     * #ai-api
+     * #ai-api:images-upload
      */
     getAllImages(): Array<iExternalImage>
 
     /**
      * Returns all available image groups
      * @param propertyId id of property which shows the image list
-     * #ai-api
+     * #ai-api:images-upload
      */
     getImageGroups(propertyId?: string): Array<string>
 
     /**
      * Returns image-count in "Buyer Upload" folder.
+     * #ai-api:images-upload
      */
     getUploadedImagesCount(): number
 
     /**
      * When using direct upload, this will return the count of outstanding image uploads.
+     * #ai-api:images-upload
      */
     getPendingImageUploadsCount(): number
 
@@ -2894,28 +3248,32 @@ export interface iPrintessApi {
     /**
      * Returns if a specific image is used in buyer editable frame.
      * @param imageId Id of image to test
+     * #ai-api:images-upload
      */
     isImageInUse(imageId: string): boolean
 
     /**
      * Returns extended information about image and its frame
+     * @param propertyId The property-id of the image frame
+     * #ai-api:images-editing
      */
     getImageFrameInfos(propertyId: string): iExternalImageFrameInfos
 
     /**
      * Returns image name by js-name of frame.
+     * #ai-api:images-upload
      */
     getImageName(jsName: string): string | null
 
     /**
      * Retrieves a list of available font-sizes in point
-     * #ai-api
+     * #ai-api:text-editing
      */
     getFontSizesInPt(): Array<number>
 
     /**
      * Retrieves a list of available font-sizes in point
-     * #ai-api
+     * #ai-api:text-editing
      */
     getFontSizesInPercent(): Array<number>
 
@@ -2928,7 +3286,7 @@ export interface iPrintessApi {
     /**
      * Returns a list of available fonts for a certain selected property (frame).
      * @param propertyId Id of property to filter available fonts per frame
-     * #ai-api
+     * #ai-api:text-editing
      */
     getFonts(propertyId: string): Array<{
         name: string;
@@ -2940,10 +3298,22 @@ export interface iPrintessApi {
     }>;
 
     /**
+     * Loads a font of the current template into the editor and caches it, so it can be rendered
+     * and measured immediately. Fonts are normally loaded on demand, so call this before you set a
+     * font on a text (e.g. via `setTextStyleProperty`) to avoid a short unstyled flash.
+     * Returns instantly if the font is already cached.
+     * @param fontName Name of the font as returned by `getFonts()` (the `name` property)
+     * @returns true if the font is available (loaded now or already cached), false if no font with
+     * that name exists in the template or the download failed.
+     * #ai-api:text-editing
+     */
+    loadFont(fontName: string): Promise<boolean>;
+
+    /**
      * Returns a list of available colors for a certain selected property (frame).
      * @param propertyId Id of property to filter available color per frame
      * @param bgColorIndex if passed a number here, it returns the background color properties without a selection.
-     * #ai-api
+     * #ai-api:text-editing
      */
     getColors(propertyId: string, bgColorIndex?: number): Array<{
         name: string;
@@ -2952,18 +3322,19 @@ export interface iPrintessApi {
 
     /**
      * Return color schemes if available as external property
-     * #ai-api
+     * #ai-api:text-editing
      */
     getColorSchemes(): iExternalProperty | null
 
     /**
      * Return primary display color from a color scheme (if available) as hex color
-     * #ai-api
+     * #ai-api:text-editing
      */
     getColorByColorScheme(schemeName: string): string | null
 
     /**
-     * Wether UI should show color schemes for layout snippets
+     * Whether UI should show color schemes for layout snippets
+     * #ai-api:layouts-snippets
      */
     showLayoutSnippetColorSchemes(): boolean
 
@@ -2988,7 +3359,7 @@ export interface iPrintessApi {
     /**
      * Returns a list of available paragraph-style for a certain selected property (frame).
      * @param propertyId Id of property to filter available styles per frame
-     * #ai-api
+     * #ai-api:text-editing
      */
     getParagraphStyles(propertyId: string): Array<{
         class: string,
@@ -2998,48 +3369,48 @@ export interface iPrintessApi {
     /**
      * Returns hex color from rgb value
      * @param color rgb color value
-     * #ai-api
+     * #ai-api:text-editing
      */
     getHexColor(color: string): string
 
     /**
      * Returns black or white hex depending on color value
-     * #ai-api
+     * #ai-api:text-editing
      */
     invertColor(hex: string, bw: boolean): string
 
     /**
      * Retrieves a SVG icon from printess
      * @param icon
-     * #ai-api
+     * #ai-api:icons
      */
-    getIcon(icon: iconName, width?: number, height?: number): SVGElement
+    getIcon(icon: iconName, width?: number, height?: number, padding?: number): SVGElement
 
     /**
      * Retrieves a SVG icon as plain string from printess
-     * #ai-api
+     * #ai-api:icons
      */
     getIconAsString(icon: iconName): string
 
     /**
      * Retrieves all available icon-names
-     * #ai-api
+     * #ai-api:icons
      */
     getAllIconNames(): iconName[]
 
     /**
      * Sets attach-parameter icons later in the game
      */
-    setCustomIcons(icons: Partial<Record<iconName, string>>, addToExisting: boolean)
+    setCustomIcons(icons: Partial<Record<iconName, string>>, addToExisting: boolean): void
 
     /**
     * Sets attach-parameter scripts later in the game
     */
-    setCustomScripts(scripts: Partial<Record<string, string>>, addToExisting: boolean)
+    setCustomScripts(scripts: Partial<Record<string, string>>, addToExisting: boolean): void
 
     /**
      * Returns true if printess has full Designer edit rights and is not running in Shop-Mode
-     * #ai-api
+     * #ai-api:core
      */
     isInDesignerMode(): boolean;
 
@@ -3050,34 +3421,50 @@ export interface iPrintessApi {
 
     /**
      * Shifts the entire printess view up and down in pixels.
+     * #ai-api:viewport-zoom
      */
-    setExternalTopOffset(value: number)
+    setExternalTopOffset(value: number): void
 
     /**
      * Trigger a resize and fit of the current page, can focus the selection alternatively.
-     * @param immediate Optional: Determines if resize should wait for a second or happens immediatly
+     * @param immediate Optional: Determines if resize should wait for a second or happens immediately
      * @param focusSelection Optional: Will zoom to current selection
-     * @param width Optional: Overrides the retrieved offsetWidth of the printess container - helpfull when animation are longer running
-     * @param height Optional: Overrides the retrieved offsetHeight of the printess container - helpfull when animation are longer running
+     * @param width Optional: Overrides the retrieved offsetWidth of the printess container - helpful when animations are longer running
+     * @param height Optional: Overrides the retrieved offsetHeight of the printess container - helpful when animations are longer running
+     * @param focusFormFieldId Optional: Form field id to zoom to
+     * #ai-api:viewport-zoom
      */
     resizePrintess(immediate?: boolean, focusSelection?: boolean, width?: number, height?: number, focusFormFieldId?: string): void;
 
 
     /**
+     * Trigger a resize and fit of the current page to an exact target rectangle instead of the measured container size.
+     * `immediate` and `focusSelection` behave like in `resizePrintess()`.
      * @param alwaysCenterSpread The default value is false
+     * #ai-api:viewport-zoom
      */
     resizePrintessExact(immediate: boolean, focusSelection: boolean, size: iRect, focusFormFieldId?: string, alwaysCenterSpread?: boolean): Promise<void>
 
+    /**
+     * Returns the title of the currently loaded template. May be an empty string if the template has no title set.
+     * #ai-api:core
+     */
     getTemplateTitle(): string;
+    /**
+     * Returns the name of the currently loaded template.
+     * #ai-api:core
+     */
     getTemplateName(): string;
 
     /**
      * Get the link required for displaying an info icon that opens a product info overlay / dialog
+     * #ai-api:basket-pricing
      */
     getProductInfoUrl(): string;
 
     /**
      * Returns true if the snippet has been lastly applied on the current document
+     * #ai-api:layouts-snippets
      */
     isLastAppliedLayout(snippetUrl: string): boolean
 
@@ -3088,40 +3475,48 @@ export interface iPrintessApi {
 
     /**
      * Returns all images placed on the current spread
-     * #ai-api
+     * #ai-api:images-editing
      */
     getImagesFromCurrentSpread(excludeSelectedFrames: boolean, skipDefaultImages: boolean, onlyFramesWithLayoutOrigin: boolean): iExternalImage[]
 
 
     /**
-     * Selects the best layout snippet for all currently loaded images.
+     * Selects the best layout snippet for the passed images, inserts it and assigns the images to its frames.
+     * @param splitVariantId optional split-variant id of the collage layout to apply (see getMatchingCollageLayouts)
+     * @param spreadId optional id of the target spread
+     * #ai-api:layouts-snippets,images-editing
      */
-    insertLayoutAndAssignImages(images: iExternalImage[], splitVariantId?: string | null, spreadId?: string);
+    insertLayoutAndAssignImages(images: iExternalImage[], splitVariantId?: string | null, spreadId?: string): Promise<void>;
 
     /**
      * Selects the cover layout snippet for all cover images and inserts it to the cover.
+     * #ai-api:photobook
      */
-    insertCustomCoverImagesToCoverLayout(coverCluster?: { imageId: string; thumbUrl: string; }[]);
+    insertCustomCoverImagesToCoverLayout(coverCluster?: { imageId: string; thumbUrl: string; }[]): Promise<void>;
 
     /**
      * Returns the maximum number of images in a single collage
+     * #ai-api:layouts-snippets
      */
     getMaxCollageImages(): number
 
     /**
-     * Returns a selection of all mathing collage layouts
+     * Returns a selection of all matching collage layouts
      * @param images images to distribute
+     * #ai-api:layouts-snippets
      */
     getMatchingCollageLayouts(images: iExternalImage[]): Promise<iExternalCollageLayout[]>;
 
     /**
      * Checks whether the user has made any edits (only checks for added text frames for now) to the current spread that would be discarded by applying a new layout.
      * @returns An array of all content types that would be discarded on layout application.
+     * #ai-api:layouts-snippets
      */
     getDiscardedContentOnLayoutAppliation(): Promise<Array<string>>
 
     /**
      * Returns the layout snippet template and doc name for the current spread
+     * #ai-api:layouts-snippets
      */
     getLastAppliedLayoutInfo(): { snippetTemplateName: string, snippetDocName: string, snippetDocId: string, splitVariantId?: string | null } | null
 
@@ -3131,11 +3526,13 @@ export interface iPrintessApi {
      * @param snippetUrl The Url of the snippet
      * @param targetPage optional, forces layout-snippets to left or right side if aspect ratio of snippet matches dimensions a single page of a double page spread
      * @param hideRemoveBorderOption optional, Default value is false
+     * #ai-api:layouts-snippets
      */
     insertLayoutSnippet(snippetUrl: string, targetPage?: "left" | "right" | "entire", spread?: any, colorScheme?: string, hideRemoveBorderOption?: boolean, splitVariant?: number, forceRepeat?: ForceSnippetPlacement, layoutImageSelection?: "apply" | "skip", removeBoxesOnBackgroundLayer?: boolean, addingBackgroundLayout?: boolean): Promise<void>;
 
     /**
      * returns if a selected sticker could replace the current selection
+     * #ai-api:layouts-snippets
      */
     stickerCanReplaceFrame(): boolean
 
@@ -3143,47 +3540,57 @@ export interface iPrintessApi {
      * Insert a Sticker (Group-Snippet) on the current spread of the current document
      * @param snippetUrl The Url of the snippet
      * @param autoAssignToSelectionIfPossible The default value is false
+     * #ai-api:layouts-snippets
      */
     insertGroupSnippet(snippetUrl: string, targetSplitterBoxId?: string, autoAssignToSelectionIfPossible?: boolean): Promise<void>;
 
     /**
      * Load a list of layout snippets which can be used during photo-book spread insertion
+     * #ai-api:photobook
      */
     getInsertSpreadSnippets(): Promise<Array<iExternalSnippet>>
 
 
     /**
      * Get a list of all splitter-content-snippets
+     * #ai-api:layouts-snippets
      */
     getSplitterSnippets(): Promise<Array<iExternalSnippet>>
 
     /**
      * If the current selection should show photo-frame-styles (PanelUI only)
+     * #ai-api:layouts-snippets
      */
     hasPhotoFrameSnippets(): boolean
 
     /**
      * Get a list of all photo-frame-snippets
+     * #ai-api:layouts-snippets
      */
     getPhotoFrameSnippets(): Promise<{ topics: Array<iSnippetMenuTopic>, snippets: Array<iExternalSnippet> }>
 
     /**
      * If the current selection should show text-frame-styles (PanelUI only)
+     * #ai-api:layouts-snippets
      */
     hasTextFrameSnippets(): boolean
 
     /**
      * Get a list of all text-frame-snippets
+     * #ai-api:layouts-snippets
      */
     getTextFrameSnippets(): Promise<{ topics: Array<iSnippetMenuTopic>, snippets: Array<iExternalSnippet> }>
 
     /**
      * Replaces current splitter-cell with splitter-snippet content
+     * #ai-api:layouts-snippets
      */
     applySplitterCellSnippet(splitterSnippetUrl: string): Promise<void>
 
     /**
-     * Replaces current splitter-cell with splitter-snippet content
+     * Applies the given photo-frame snippet to the currently selected frame
+     * @param snippetUrl The Url of the snippet
+     * #ai-api:layouts-snippets
      */
     applyPhotoFrameSnippet(snippetUrl: string): Promise<void>
 
@@ -3205,15 +3612,16 @@ export interface iPrintessApi {
      * Any template can be inserted (Does not have to be published as snippet),
      * but if the template/document is a snippet the placement-settings will be used
      * @param mode: Optional, default is "layout" setting to "group" will insert template/document as sticker (group-snippet)
+     * #ai-api:layouts-snippets
      */
     insertTemplateAsLayoutSnippet(templateName: string, templateVersion: "draft" | "published", documentName: string, mode: "layout" | "group"): Promise<void>
 
 
     /**
-     * @deprecated Will not work from buyer side
-     *
      * Saves and publishes the template.
      * @param name The name you want to save the template under.
+     * @deprecated No direct replacement â€” will not work from buyer side.
+     * #ai-api:core,legacy
      */
     saveAndPublish(name: string): Promise<void>;
 
@@ -3233,22 +3641,27 @@ export interface iPrintessApi {
     getStyleValue(className: string, propertyName: string): string
 
     /**
-     * @deprecated
      * Returns if buyer ui should display the page navigation
+     * @deprecated Use `pageNavigationDisplay()` instead, which returns the navigation style ("hide" | "numbers" | "icons" | "doc-tabs").
+     * @see pageNavigationDisplay
+     * #ai-api:pages-documents,legacy
      */
     showPageNavigation(): boolean;
 
     /**
-     * Returns if buyer ui should display the page navigation as icons for all docs or just numbers for current doc
+     * Returns how the buyer ui should display the page navigation: hidden, as page numbers for the current doc, as icons (thumbnails) for all docs, or as doc-tabs.
+     * #ai-api:pages-documents
      */
     pageNavigationDisplay(): "hide" | "numbers" | "icons" | "doc-tabs";
 
     /**
-     * Ignore enitere page click, and alway zoom to single page
+     * Ignore entire page click, and always zoom to single page
+     * #ai-api:viewport-zoom
      */
     forceZoomToSinglePageOnMobile(): boolean
     /**
      * Returns if buyer ui should display the search bar for searching through images
+     * #ai-api:images-upload
      */
     showSearchBar(): boolean
 
@@ -3264,67 +3677,80 @@ export interface iPrintessApi {
 
     /**
      * Returns if buyer ui should display undo and redo buttons
+     * #ai-api:viewport-zoom
      */
     showUndoRedo(): boolean
 
     /**
      * Executes an undo step if available.
+     * #ai-api:viewport-zoom
      */
     undo(): void;
 
     /**
-     * Executes an redo step if available.
+     * Executes a redo step if available.
+     * #ai-api:viewport-zoom
      */
     redo(): void;
 
     /**
      * Returns number of available undo steps
+     * #ai-api:viewport-zoom
      */
     undoCount(): number
 
     /**
      * Returns number of available redo steps
+     * #ai-api:viewport-zoom
      */
     redoCount(): number
 
     /**
      * return if zoom options should be displayed
+     * #ai-api:viewport-zoom
      */
     allowZoomOptions(): boolean
 
     /**
      * Zoom in on spread visible
+     * #ai-api:viewport-zoom
      */
     zoomIn(): void
 
     /**
      * Zoom out of spread visible
+     * #ai-api:viewport-zoom
      */
     zoomOut(): void
 
     /**
      * Returns all important informations to create a dynamic photobook
+     * #ai-api:photobook
      */
     getDocInfoForPhotobook(): iExternalPhotobookDocInfo | null
 
     /**
      * Check for double page spreads to show/hide zoom to spread option
+     * #ai-api:pages-documents
      */
     isDoublePageSpread(): boolean
 
     /**
-     * returns last applied collage varient index for current spread
+     * Returns the last applied collage split-variant id for the current spread
+     * #ai-api:layouts-snippets
      */
     currentSpreadSplitVariantId(): string | null
 
     /**
      * Returns if the number of spreads fits the requirements set in the template
      * @param spreadSize current number of spreads
+     * #ai-api:photobook
      */
     isNoOfPagesValid(spreadSize: number): boolean
 
     /**
      * Return if buyer can change the spread order
+     * #ai-api:photobook
      */
     canReArrangeSpreads(spread?: iExternalSpreadInfo): boolean
 
@@ -3340,29 +3766,30 @@ export interface iPrintessApi {
      *
      * ```
      * await api.reArrangeSpreads([
-     *  {
-     *    id: "PZE4tKlZmD9Mx9gZ0OIfx" // existing spread
-     *  },
-     *  {
-     *    id: "newSpread",
-     *    snippetUrl: "
-    https://printess-prod.s3.eu-central-1.amazonaws.com/uploads/snippet/fc8b773be98ee6d58ffebd9d955a55252ddc9a0a/json/764f973bb7d9a0ae9691c3d62cf941baac6cd13e/91b02c876e345bdc8efe5d4582519a85dfc3726d.json?DOC=PCepmgRyO8E3vz0f7rXlh&ID=40be80b32d36fd85d3127f7258ead6b1dbcb8458"
-        },
-        {
-          id: "PRE4tKlZmD4jj9gZ0OIfx" // existing spread
-        }
+     *   {
+     *     id: "PZE4tKlZmD9Mx9gZ0OIfx" // existing spread
+     *   },
+     *   {
+     *     id: "newSpread",
+     *     snippetUrl: "https://printess-prod.s3.eu-central-1.amazonaws.com/uploads/snippet/fc8b773be98ee6d58ffebd9d955a55252ddc9a0a/json/764f973bb7d9a0ae9691c3d62cf941baac6cd13e/91b02c876e345bdc8efe5d4582519a85dfc3726d.json?DOC=PCepmgRyO8E3vz0f7rXlh&ID=40be80b32d36fd85d3127f7258ead6b1dbcb8458"
+     *   },
+     *   {
+     *     id: "PRE4tKlZmD4jj9gZ0OIfx" // existing spread
+     *   }
      * ])
      * ```
      *
      * Handle with care, this can destroy your Book-Inside-Pages document
      * @param newSpreadIds Array of spread id or "newSpread" and optional snippetUrls for all "newSpreads" in correct order
+     * #ai-api:photobook
      */
     reArrangeSpreads(newSpreadIds: Array<{ id: string | "newSpread", snippetUrl?: string }>, updateBackground?: boolean): Promise<boolean>
 
     /**
-     * Returns how many spreads would be added before the back cover if `addSpreads()`is called.
+     * Returns how many spreads would be added before the back cover if `addSpreads()` is called.
      * The amount depends on the settings in the template. Template needs to be marked as `book`
      * @param spreadSize Optional: number of current spreads (used in arrange pages dialog where actual number of spreads is not yet applied)
+     * #ai-api:photobook
      */
     canAddSpreads(spreadSize?: number): 0 | 1 | 2
 
@@ -3370,13 +3797,15 @@ export interface iPrintessApi {
      * Photo-Book only feature:
      * Add new spreads / pages to the current document before the back cover
      * The amount depends on the settings in the template. Template needs to be marked as `book`
-    */
+     * #ai-api:photobook
+     */
     addSpreads(): Promise<boolean>
 
     /**
-     * Returns how many spreads would be removed before cover  `removeSpreads()`is called.
+     * Returns how many spreads would be removed before the back cover if `removeSpreads()` is called.
      * The amount depends on the settings in the template. Template needs to be marked as `book`
-     * @param spreadSize Optional: number of current spreads (used in arrange pages dialog where actual number of spreads is not yet applied)
+     * @param spraedSize Optional: number of current spreads (used in arrange pages dialog where actual number of spreads is not yet applied)
+     * #ai-api:photobook
      */
     canRemoveSpreads(spraedSize?: number): 0 | 1 | 2
 
@@ -3384,62 +3813,78 @@ export interface iPrintessApi {
      * Photo-Book only feature:
      * Remove spreads / pages from the current document before the back cover
      * The amount depends on the settings in the template. Template needs to be marked as `book`
+     * #ai-api:photobook
      */
     removeSpreads(): Promise<boolean>
 
     /**
-    * Photo-Book only feature:
-    * Remove just the single current selected spread from photo-book doc.
-    */
+     * Photo-Book only feature:
+     * Remove just the single current selected spread from photo-book doc.
+     * #ai-api:photobook
+     */
     removeCurrentSpread(): Promise<void>
 
 
     /**
      * Tells if user is allowed to duplicate the current spread
+     * #ai-api:pages-documents
      */
     canDuplicateSpread(): boolean
 
     /**
      * Duplicates the currently selected spread
+     * @returns true if the spread was duplicated successfully
+     * #ai-api:pages-documents
      */
     duplicateSpread(): Promise<boolean>
 
     /**
      * Gets the state of the "lockCoverInside" user setting in "book" mode
-     * If set to true the the first and last page is hidden from the buyer and no photo is distributed on that pages
+     * If set to true the first and last page is hidden from the buyer and no photo is distributed on that pages
      * Helpful for certain layflat photobooks
+     * #ai-api:photobook
      */
     lockCoverInside(): boolean
 
     /**
-     *
+     * Renders the first page of a document as an image.
      * @param fileName deprecated. Not used anymore.
      * @param documentName Optional: The name of the document you want to render the pages images for. If not provided the one marked as thumbnail will be taken, otherwise the preview document, or as last try the first/primary document.
      * @param maxWidth Optional: Maximum render width. Defaults to 400.
      * @param maxHeight Optional: Maximum render height. Defaults to 400.
+     * @returns Url to the image. Can be png with transparency or jpg.
+     * #ai-api:basket-pricing
      */
     renderFirstPageImage(fileName: string, documentName?: string, maxWidth?: number, maxHeight?: number): Promise<string>;
 
 
     /**
      * Renders all pages as images for the given document.
-     *
-     *
      * @param fileNameSuffix deprecated. Not used anymore.
      * @param documentName Optional: The name of the document you want to render the pages images for. If not provided the one marked as thumbnail will be taken, otherwise the preview document, or as last try the first/primary document.
      * @param maxWidth Optional: Maximum render width. Defaults to 400.
      * @param maxHeight Optional: Maximum render height. Defaults to 400.
-     * @returns Array of urls to the images. They can be png with tranparency or jpg.
+     * @returns Array of urls to the images. They can be png with transparency or jpg.
+     * #ai-api:basket-pricing
      */
     renderPageImages(fileNameSuffix: string, documentName?: string, maxWidth?: number, maxHeight?: number): Promise<string[]>;
 
+    /**
+     * Tells if printess detects the current device as a mobile device.
+     * #ai-api:viewport-zoom
+     */
     isMobile(): boolean;
 
     // check if device is iPhone or iPod
+    /**
+     * Tells if the current device is an iPhone or iPod.
+     * #ai-api:viewport-zoom
+     */
     isIPhone(): boolean;
 
     /**
      * Tells if printess has currently selected frames
+     * #ai-api:frames-selection
      */
     hasSelection(): boolean
 
@@ -3454,43 +3899,54 @@ export interface iPrintessApi {
      */
     hideDoneButtonInUiHelper(): boolean;
 
+    /**
+     * Returns the current buyer step, or null if there is no current step.
+     * #ai-api:steps-workflow
+     */
     getStep(): iBuyerStep | null;
     /**
      * Indicates if the current step has become inactive, because the user has selected other frames
      * TRUE if the current step is part of the selection.
+     * #ai-api:steps-workflow
      */
     isCurrentStepActive(): boolean;
 
     /**
      * Returns step information
-     * @param index
+     * @param index Index of the step to retrieve
+     * #ai-api:steps-workflow
      */
     getStepByIndex(index: number): iBuyerStep | null
 
     /**
      * Indicates if the current template has buyer-steps
+     * #ai-api:steps-workflow
      */
     hasSteps(): boolean
 
     /**
-     *
-     * @param index Sets step by index
-     * @param zoom
+     * Jumps directly to the step with the given index.
+     * @param index Index of the step to go to
+     * @param zoom overrides the frames zoom settings for all devices
+     * #ai-api:steps-workflow
      */
     setStep(index: number, zoom?: "frame" | "spread"): Promise<void>
 
     /**
      * Retrieves last step
+     * #ai-api:steps-workflow
      */
     lastStep(): iBuyerStep | null;
 
     /**
      * Returns true if a next step is available
+     * #ai-api:steps-workflow
      */
     hasNextStep(): boolean;
 
     /**
-     * Returns true if a previous step is availabel
+     * Returns true if a previous step is available
+     * #ai-api:steps-workflow
      */
     hasPreviousStep(): boolean;
 
@@ -3501,37 +3957,41 @@ export interface iPrintessApi {
 
     /**
      * Indicates if the next step is the preview document.
+     * #ai-api:steps-workflow
      */
     isNextStepPreview(): boolean;
 
     /**
      * Register Select Layout Dialog shown for specific Spread
      */
-    selectLayoutDialogHasBeenShownForCurrentSpread(spreadId: string);
+    selectLayoutDialogHasBeenShownForCurrentSpread(spreadId: string): void;
 
     /**
      * Lets printess know that the layout has been applied
      */
-    resetUndoBufferAfterInitialLayoutSelection(spreadId: string);
+    resetUndoBufferAfterInitialLayoutSelection(spreadId: string): void;
 
 
     /**
      * Return true if buyer can deselect an item on the current spread.
      * Which means that either there are non-step frames to select or the spread can add new group-snippets/stickers
      * Important to keep buyer in the step-logic
+     * #ai-api:steps-workflow
      */
     buyerCanHaveEmptySelection(): boolean;
 
     /**
-     * Returns true if buyer can select any frame  on the current spread.
+     * Returns true if buyer can select any frame on the current spread.
      * Which means that either there are non-step frames to select or the spread can add new group-snippets/stickers
      * Important to keep buyer in the step-logic
+     * #ai-api:steps-workflow
      */
     hasEditableFramesWithoutSteps(): boolean;
 
     /**
      * Returns true if buyer can select any frame on any document / spread.
      * Which means that either there are non-step frames to select or the spread can add new group-snippets/stickers
+     * #ai-api:steps-workflow
      */
     templateHasEditableFramesWithoutSteps(): boolean;
 
@@ -3539,124 +3999,153 @@ export interface iPrintessApi {
      * returns desired behaviour of basket button
      * In steps-mode basket button always points to the basket.
      * If no steps are present basket button should lead to the preview
+     * #ai-api:basket-pricing
      */
     getBasketButtonBehaviour(): "add-to-basket" | "go-to-preview" | "go-to-book-mook"
 
     /**
-     * Read-Only Mode / BOOK MOOK PREVIEW
+     * Enters the read-only page-flip book preview ("book mook"); switches to the book-cover document first if one exists.
+     * #ai-api:pages-documents
      */
     enterBookMookPreview(): Promise<void>
+    /**
+     * Leaves the read-only page-flip book preview ("book mook").
+     * #ai-api:pages-documents
+     */
     leaveBookMookPreview(): Promise<void>
     /**
      * Tells UI if currently in Page Flip Book Mook Preview
+     * #ai-api:pages-documents
      */
     isInBookMookPreview(): boolean
 
     /**
      * Tells UI if currently in Read Only Mode
+     * #ai-api:pages-documents
      */
     isInReadOnlyBuyerMode(): boolean
 
 
     /**
-     * Tells the ui if it should a `Back-Button`from preview to edit.
-     * Its true if the current displayed document is a `preview` document
+     * Tells the ui if it should show a `Back-Button` from preview to edit.
+     * It's true if the currently displayed document is a `preview` document
+     * #ai-api:steps-workflow
      */
     hasPreviewBackButton(): boolean
 
     /**
      * Jumps to the previous available preview document if there is one.
+     * #ai-api:steps-workflow
      */
     gotoPreviousPreviewDocument(zoomDuration?: number): Promise<void>
 
     /**
      * Jumps to the next available preview document if there is one.
+     * #ai-api:steps-workflow
      */
     gotoNextPreviewDocument(zoomDuration?: number): Promise<void>
 
     /**
      * Retrieves information if the device is mobile or the screen is so small that zoom to frames is needed
+     * #ai-api:viewport-zoom
      */
     zoomToFrames(isMobile?: boolean): boolean
 
     /**
-     * Tells if the entire spread is in view
+     * Tells which part of the current spread is in view: `entire`, `left-page`, `right-page` or `none`.
+     * @param part Optional: the specific part to check for.
+     * #ai-api:viewport-zoom
      */
     isSpreadInView(part?: "entire" | "left-page" | "right-page"): "entire" | "left-page" | "right-page" | "none"
 
     /** Tells printess that a user interaction has changed the zoom, no automatic spread zoom will be executed after this */
-    setUserHasZoomedFlag(newValue: boolean);
+    setUserHasZoomedFlag(newValue: boolean): void;
 
     /**
      * Tells printess the zoom mode to use for the next resize operation
      * `spread` zooms to the entire page
-     * `frame`zooms to the selected frame(s)
+     * `frame` zooms to the selected frame(s)
+     * #ai-api:viewport-zoom
      */
     setZoomMode(m: "spread" | "frame"): void
 
     /**
      * Retrieves the current zoomMode (see `setZoomMode()`)
+     * #ai-api:viewport-zoom
      */
     getZoomMode(): "spread" | "frame"
 
 
     /**
      * Tells if the current selection can be moved around by the user
+     * #ai-api:frames-selection
      */
     canMoveSelectedFrames(): boolean
 
     /**
      * Tells if parts of the current selection can be deleted
+     * #ai-api:frames-selection
      */
     canDeleteSelectedFrames(): boolean
 
     /**
      * Tells if the current selection is part of a collage and accordingly influences the size of other images and own size when changing
+     * #ai-api:layouts-snippets
      */
     canSplitSelectedFrames(): boolean
 
     /**
      * Change an image frame to a text snippet frame in a photo collage
+     * #ai-api:layouts-snippets
      */
     convertSplitterCellToText(): Promise<void>
 
     /**
      * Change a text snippet frame to an image frame in a photo collage
+     * #ai-api:layouts-snippets
      */
     convertSplitterCellToImage(): Promise<void>
 
     /**
-    * Aligns all splitter clusters on current spread to document margins
-    */
+     * Aligns all splitter clusters on current spread to document margins
+     * #ai-api:layouts-snippets
+     */
     alignSplitterClustersToDocMargin(): Promise<void>
 
     /**
      * Set the gap size of the photo grid
      * @param n gap size of the photo grid
+     * #ai-api:layouts-snippets
      */
     setSplitterGaps(n: number): Promise<void>
 
     /**
-     * Returns if splitter layout can add or remove gap
+     * Returns the next possible gap actions for the splitter layout on the current spread:
+     * whether a gap around the splitter frames can be added or removed (`gapAround`),
+     * the current gap value (`gap`) and which gap sizes may be set via setSplitterGaps (`setGap`: "all" includes a zero gap, "only>0" only positive sizes)
+     * #ai-api:layouts-snippets
      */
     nextGapAction(): { gapAround: null | "add" | "remove", gap: number, setGap: null | "all" | "only>0" }
 
     /**
      * Returns if current spread has splitter frames
+     * #ai-api:layouts-snippets
      */
     hasSplitters(): boolean
 
     /**
      * If splitter frames are present on current spread this method adds
      * a gap between all splitter-frames and the page border
-     * Returns `true` if succesfull
+     * Returns `true` if successful
+     * #ai-api:layouts-snippets
      */
     addGapAround(): Promise<boolean>
 
     /**
      * If splitter frames are present on current spread this method removes
      * the gap between all splitter-frames and the page border
-     *  * Returns `true` if succesfull
+     * Returns `true` if successful
+     * #ai-api:layouts-snippets
      */
     removeGapAround(): Promise<boolean>
 
@@ -3682,39 +4171,46 @@ export interface iPrintessApi {
 
     /**
      * Returns true if selection has sub-doc (group) to open.
+     * #ai-api:frames-selection
      */
     canOpenSelectedGroup(): boolean
 
     /**
      * Opens the selected sub doc (group)
+     * #ai-api:frames-selection
      */
     openSelectedGroup(): Promise<void>
 
     /**
      * Opens a single photo-print document for full editing from the single-photo pages overview.
      * Returns to the overview via `selectLastDocument()` (back button surfaces automatically).
+     * #ai-api:single-photo-prints,pages-documents
      */
     openSinglePhotoDoc(docId: string): Promise<void>
 
     /**
      * Goes to the next available step (if any)
      * @param zoom overrides the frames zoom settings for all devices
+     * #ai-api:steps-workflow
      */
     nextStep(zoom?: "frame" | "spread"): Promise<void>;
 
     /**
      * Returns true if current doc is a 3D Preview
+     * #ai-api:steps-workflow
      */
     is3dPreviewSelected(): boolean
 
     /**
      * Goes to the previous step (if any)
      * @param zoom overrides the frames zoom settings for all devices
+     * #ai-api:steps-workflow
      */
     previousStep(zoom?: "frame" | "spread"): Promise<void>;
 
     /**
      * Returns the total amount of available preview-steps. 0 indicates no preview
+     * #ai-api:steps-workflow
      */
     previewStepsCount(): number;
 
@@ -3722,12 +4218,14 @@ export interface iPrintessApi {
      * Goes directly to the preview-step-index
      * @param previewIndex Zero based index of the preview steps. See also: previewStepsCount()
      * @param zoom overrides the frames zoom settings for all devices
+     * #ai-api:steps-workflow
      */
     gotoPreviewStep(previewIndex?: number, zoom?: "frame" | "spread"): Promise<void>;
 
     /**
      * Returns to the first step, helpful if you want to exit the preview step.
      * @param zoom overrides the frames zoom settings for all devices
+     * #ai-api:steps-workflow
      */
     gotoFirstStep(zoom?: "frame" | "spread"): Promise<void>;
 
@@ -3735,21 +4233,25 @@ export interface iPrintessApi {
      * Returns to the last step, helpful if you want to skip steps.
      * @param zoom overrides the frames zoom settings for all devices
      * @param offset helps to get to the step before last step (offset = 1), default offset is 0
+     * #ai-api:steps-workflow
      */
     gotoLastStep(zoom?: "frame" | "spread", offset?: number): Promise<void>
 
     /**
      * Turns the display of step numbers on or off
+     * #ai-api:steps-workflow
      */
     displayStepNumbers(display: boolean): Promise<void>
 
     /**
      * Returns if step numbers are displayed
+     * #ai-api:steps-workflow
      */
     stepNumbersDisplayed(): boolean
 
     /**
      * Returns the template settings for display of steps header on desktop and mobile
+     * #ai-api:steps-workflow
      */
     stepHeaderDisplay(): "never" | "only title" | "only badge" | "title and badge" | "badge list" | "tabs list"
 
@@ -3771,14 +4273,17 @@ export interface iPrintessApi {
     neverHideMobileToolbar(): boolean
 
     /**
-     * @deprecated
      * Returns true if `autoScale` was set in `attachPrintess` call
+     * @deprecated Use `autoScaleDetails()` instead, which also returns the calculated container dimensions.
+     * @see autoScaleDetails
+     * #ai-api:viewport-zoom,legacy
      */
     autoScaleEnabled(): boolean
 
     /**
      * Retrieves information if the `auto-scale` option was enabled on `attachPrintess()`
      * Also returns the calculated pixel-dimension of printess container on desktop
+     * #ai-api:viewport-zoom
      */
     autoScaleDetails(): { enabled: boolean, width: number, height: number }
 
@@ -3786,6 +4291,7 @@ export interface iPrintessApi {
      * Auto Zooms to current selection or spread
      * @param focusFormFieldId FF id to zoom to
      * @param forceZoom overwrites natural behaviour
+     * #ai-api:viewport-zoom
      */
     centerSelection(focusFormFieldId?: string, forceZoom?: "spread" | "frame"): Promise<number>
 
@@ -3793,26 +4299,31 @@ export interface iPrintessApi {
      * Tells if ui should display a zoom-to-selection button
      * Only returns true if a significant zoom would happen
      * @param focusFormFieldId FF id to zoom to
+     * #ai-api:viewport-zoom
      */
     hasZoomToSelectionButton(focusFormFieldId?: string): boolean
 
     /**
-     *
+     * Creates an upload provider which uploads buyer files directly to an AWS S3 bucket. Pass the result to setUploadProvider().
      * @param uploadEndpoint The target address to send the upload form data to. E.g. https://your-bucket.s3.eu-central-1.amazonaws.com/
      * @param serveEndpoint The url the files are served from. This can differ from the upload endpoint to make CDN distribution possible. E.g. https://mycloudfrontid.amazonaws.com/
      * @param keyGenerator The method to generate the S3 key. The built-in one just makes sure that the file name is unique per session.
+     * #ai-api:images-upload
      */
     createAwsUploaderProvider(uploadEndpoint: string, serveEndpoint?: string, keyGenerator?: (fileName: string, fileHash: string) => string): AwsUploadProvider;
 
     /**
+     * Sets the upload provider used for buyer file uploads (images and fonts).
      * @param provider The new upload provider to use.
+     * #ai-api:images-upload
      */
     setUploadProvider(provider: UploadProvider): void;
 
     /**
-     *
+     * Associates buyer uploads with your shop user and basket session, so previously uploaded images can be re-imported later via importUserUploadedImages().
      * @param shopUserId Your shop user id. You can provide this to assign uploaded images to this user and load it later on.
      * @param basketId The basket id for this session. You can load images later on with this id.
+     * #ai-api:images-upload,basket-pricing
      */
     setShopInfo(shopUserId: string, basketId: string): void
 
@@ -3823,11 +4334,15 @@ export interface iPrintessApi {
 
     /**
      * Retrieves all price relevant form-field names and values
+     * @deprecated Use `getAllPriceRelevantFormFieldsExt()` instead, which additionally returns tag information and referenced price-categories.
+     * @see getAllPriceRelevantFormFieldsExt
+     * #ai-api:basket-pricing,legacy
      */
     getAllPriceRelevantFormFields(): { [key: string]: string }
 
     /**
      * Retrieves all price relevant form-fields plus tag information and referenced price-categories
+     * #ai-api:basket-pricing
      */
     getAllPriceRelevantFormFieldsExt(): {
         priceCategories: Array<string>,
@@ -3889,84 +4404,105 @@ export interface iPrintessApi {
      * Returns a translation as string to display the ui in different languages
      * @param translationKey String containing the keys for the translation table separated by period
      * @param params String or number parameters that substitute $1, ..., $9 properties in a translation
+     * #ai-api:custom-ui
      */
     gl(translationKey: string, ...params: Array<string | number>): string
 
     /**
      * Returns current global scale factor, should be !== 1 only on iOS devices to avoid safari-crashes
+     * #ai-api:viewport-zoom
      */
     globalScaleFactor(): number
 
     /**
      * Returns if LayoutSnippets are available
+     * #ai-api:layouts-snippets
      */
     hasLayoutSnippets(): boolean
 
 
     /**
-    * Returns selected Layout Category Name that will initially be selected in the Buyer Side for Layout Snippets
-    * Can be empty string (and should be ignored) if not set via attach parameters
-    * @categories: default value null
-    */
+     * Returns selected Layout Category Name that will initially be selected in the Buyer Side for Layout Snippets
+     * Can be empty string (and should be ignored) if not set via attach parameters
+     * @param categories default value null
+     * #ai-api:layouts-snippets
+     */
     getInitialLayoutCategoryName(categories?: iSnippetMenuCategory[] | null): string
 
     /**
      * Returns selected Layout Topic Id that will initially be selected in the Buyer Side for Layout Snippets
-     * @category: default value null
+     * @param category default value null
+     * #ai-api:layouts-snippets
      */
     getSelectedLayoutTopicId(category?: iSnippetMenuCategory | null): string
 
     /**
-      * Returns if sticker or layout snippet menus should be rendered
-      */
+     * Returns if the snippet menu of the given type ("layout" | "sticker" | "background") should be rendered
+     * #ai-api:layouts-snippets
+     */
     hasSnippetMenu(which: "layout" | "sticker" | "background"): boolean
 
     /**
-      * Returns if LayoutSnippets are available
-      */
+     * Returns the aspect-ratio name of the current spread (one of "ultra-portrait", "super-portrait", "portrait", "square", "landscape", "super-landscape", "ultra-landscape"), as used to match layout snippets to the spread aspect.
+     * Returns "not loaded" if the template is not fully loaded yet.
+     * #ai-api:pages-documents
+     */
     getDocumentAspectRatioName(): string
 
     /**
      * Returns the recommended upload size of the currently selected image
+     * #ai-api:images-upload
      */
     getSelectedImageRecommendedSize(): null | { pxWidth: number, pxHeight: number }
 
-    /** @deprecated */
+    /**
+     * Returns the filter menu for layout snippets.
+     * @deprecated Use getSnippetFilterMenu("layout") instead.
+     * @see getSnippetFilterMenu
+     * #ai-api:layouts-snippets,legacy
+     */
     getLayoutSnippetFilterMenu(): Promise<iSnippetMenuCategory[] | null>
 
     /**
      * Returns Filter Menu for Layout Snippets ("layout") or for a menu-id passed in "menuId"
+     * #ai-api:layouts-snippets
      */
     getSnippetFilterMenu(menuId: "layout" | "background" | "photobook-themes" | string): Promise<iSnippetMenuCategory[] | null>
 
     /**
-     * Returns if ui should show image count filter for layou snippets
+     * Returns if ui should show image count filter for layout snippets
      * Only active if filter menu is displayed
+     * #ai-api:layouts-snippets
      */
     hasLayoutSnippetImageCountFilter(): boolean
 
     /**
-     * Retrieved availbale keywords for layout search
+     * Retrieves available keywords for layout snippet search
+     * #ai-api:layouts-snippets
      */
     getLayoutSnippetKeywords(): Promise<Array<string>>
 
     /**
-     * Retrieved availbale product types for layout search
+     * Retrieves available product types for layout snippet search
+     * #ai-api:layouts-snippets
      */
     getLayoutSnippetProductTypes(): Promise<Array<string>>
 
     /**
-     * Retrieved all layout snippets matching certain keyword, current language and current aspect ratio
+     * Retrieves all layout snippets matching the given keywords, current language and current aspect ratio
+     * #ai-api:layouts-snippets
      */
     loadLayoutSnippetsByKeywords(keywords: string[], topicId?: string): Promise<Array<iExternalSnippet>>
 
     /**
-     * Retrieved all background-layout snippets matching certain keyword
+     * Retrieves all background-layout snippets matching the given keywords
+     * #ai-api:layouts-snippets
      */
     loadBackgroundLayoutsByKeywords(keywords: string[], topicId?: string): Promise<Array<iExternalSnippet>>
 
     /**
-     * Retrieved all stickersnippets mathcing certain tags & keywords and current language
+     * Retrieves all sticker snippets matching the given tags & keywords and the current language
+     * #ai-api:layouts-snippets
      */
     loadStickerSnippetsByKeywords(tags: string[] | ReadonlyArray<string>, keywords: string[]): Promise<Array<iExternalSnippet>>
 
@@ -3975,81 +4511,98 @@ export interface iPrintessApi {
 
     /**
      * Enter the buyer Expert-Mode to allow position, remove and rotation for every frame which is not locked
+     * #ai-api:frames-selection
      */
     enterExpertMode(): void
 
     /**
-     * Leave the buyer Expert-Mode to allow position, remove and rotation for every frame which is not locked
+     * Leave the buyer Expert-Mode (see `enterExpertMode()`)
+     * #ai-api:frames-selection
      */
     leaveExpertMode(): void
 
     /**
      * Returns if Expert-Mode is active
+     * #ai-api:frames-selection
      */
     isInExpertMode(): boolean
 
     /**
      * Returns if Expert-Mode should be enabled on template load
+     * #ai-api:frames-selection
      */
     showExpertModeOnLoad(): boolean
 
     /**
      * Returns if UI should show a button to enter Expert-Mode
+     * #ai-api:frames-selection
      */
     hasExpertButton(): boolean
 
     /**
      * Returns if Current user has elevated buyer-rights
+     * #ai-api:core
      */
     isBuyerDesigner(): boolean
 
     /**
      * Returns if currently loaded template is loaded from a save token.
+     * #ai-api:core
      */
     loadedFromSaveToken(): boolean
 
     /**
      * Returns if still in Buyer Mode (Design Side Only)
+     * #ai-api:core
      */
     isBuyer(): boolean
 
     /**
      * Returns if UI should display a button to save the current work in the buyer side
+     * #ai-api:core
      */
     showSaveButton(): boolean
 
     /**
-     * Returns if UI should display a button to save the current work in the buyer side
+     * Returns if UI should display a button to render a proof pdf of the current work in the buyer side
+     * @see renderProofPdfs
+     * #ai-api:basket-pricing
      */
     showProofButton(): boolean
 
     /**
      * Returns if UI should display a button to show and hide the alignment grid
+     * #ai-api:viewport-zoom
      */
     showGridButton(): "on" | "off" | "hide"
 
     /**
      * Toggles alignment grid
+     * #ai-api:viewport-zoom
      */
-    toggleGrid()
+    toggleGrid(): void
 
     /**
      * Returns if UI should display a button to save and close the current work in the buyer side
+     * #ai-api:core
      */
     showSaveAndCloseButton(): boolean
 
     /**
      * Returns if UI should force the basket button to be in text form
+     * #ai-api:basket-pricing
      */
     forceBasketButtonText(): boolean
 
     /**
      * Returns if UI should display a button to add current work into the basket
+     * #ai-api:basket-pricing
      */
     showAddToBasketButton(): boolean
 
     /**
      * Indicates if UI should show an alert prompt when user attempts to leave the buyer-side
+     * #ai-api:core
      */
     showAlertOnClose(): boolean
 
@@ -4075,12 +4628,14 @@ export interface iPrintessApi {
     enableA11yForTableControl(): boolean
 
     /**
-     * Returns wether UI should show button to display Keyboard Shortcuts
+     * Returns whether UI should show button to display Keyboard Shortcuts
+     * #ai-api:viewport-zoom
      */
     showKeyboardShortcuts(): boolean
 
     /**
-     * Returns wether UI should show buttons for cropping in the Crop+Rotate overlay
+     * Returns whether UI should show buttons for cropping in the Crop+Rotate overlay
+     * #ai-api:images-editing
      */
     showCropOverlayButtons(): boolean
 
@@ -4101,17 +4656,19 @@ export interface iPrintessApi {
 
 
     /**
-     * @deprecated
-     * This call is no longer supported, use `getBuyerFrameCountAndMarkers()` instead.
-     * This call will no longer return `iFrameCountAndClasses` intead it returns `iFrameCountAndMarkers`
+     * @deprecated This call is no longer supported, use `getBuyerFrameCountAndMarkers()` instead.
+     * This call will no longer return `iFrameCountAndClasses`, instead it returns `iFrameCountAndMarkers`.
+     * @see getBuyerFrameCountAndMarkers
+     * #ai-api:basket-pricing,legacy
      */
     getBuyerFrameCountAndClasses(): Array<iFrameCountAndMarkers>
 
 
     /**
      * Returns an array of buyer-editable documents and a list of frames for each spread including their frame markers.
-     * You can easily use them for statistically purposes or to charge extra prices for certain used layouts.
+     * You can easily use them for statistical purposes or to charge extra prices for certain used layouts.
      * Or just use the frame-count to determine if the user had made changes at all.
+     * #ai-api:basket-pricing
      */
     getBuyerFrameCountAndMarkers(): Array<iFrameCountAndMarkers>
 
@@ -4119,41 +4676,44 @@ export interface iPrintessApi {
     /**
      * Forces calling the shops price change callback
      * Optionally can get a temporary page-count to send to the hosting page
+     * #ai-api:basket-pricing
      */
     callPriceChangeCallback(overWritePageCount?: number): void
 
     /**
      * returns all price relevant data of the current template
-     * */
+     * #ai-api:basket-pricing
+     */
     getPriceRelevantData(): iExternalProductPriceInfo
 
     /**
      * Get price labels for form-field badges from price-tags
-     * @param tag
+     * @param tag price-tag to resolve the label for
      * @param propertyId optional to allow printess to check price-relevance of form field
-     * @param characters optional to calculate per letter price if applicable
+     * @param newValue optional to calculate per letter price if applicable
+     * #ai-api:basket-pricing
      */
     getFormFieldPriceLabelByTag(tag: string, propertyId?: string, newValue?: string): string
 
     /**
      * When using direct upload, this will return all the pending image upload promises.
      * You can use Promise.any() to show some nice progress.
-     *
      * @returns The currently pending upload promises for direct upload.
+     * #ai-api:images-upload
      */
     getPendingImageUploads(): Set<Promise<any>>;
 
     /**
      * When using direct upload, this will return all the image meta data finalization promises.
-     *
      * @returns The currently pending metadata promises for direct upload.
+     * #ai-api:images-upload
      */
     getDirectImageMetadataFinalizationPromises(): Set<Promise<any>>;
 
     /**
      * When using direct upload, this returns the count of upload processes.
-     *
      * @returns The number of upload processes.
+     * #ai-api:images-upload
      */
     getUploadsInProgress(): number;
 
@@ -4176,6 +4736,10 @@ export interface iPrintessApi {
      *
      * @param callback Callback to report the current progress
      * @param options Options to determine the photobook properties
+     * @param freeStyle If true, creates a freestyle photobook instead of a magic photobook
+     * @param coverCluster Optional: pre-selected cover images (as customized in the simplified pages view)
+     * @param customizedImageSpreads Optional: per-spread image clusters (as customized in the simplified pages view)
+     * #ai-api:photobook
      */
     insertPhotobookPages(callback: (percent: number, step: iExternalPhotobookStep, msg: string) => void, options: iExternalPhotobookOptions, freeStyle: boolean, coverCluster?: { imageId: string; thumbUrl: string; }[], customizedImageSpreads?: { imageId: string; thumbUrl: string; }[][]): Promise<void>
 
@@ -4184,22 +4748,26 @@ export interface iPrintessApi {
      *
      * @param callback Callback to report the current progress
      * @param options Options for the analysis process
+     * #ai-api:photobook
      */
     analyzePhotos(callback: (percent: number, step: iExternalImageAnalysisStep, msg: string) => void, options: iExternalImageAnalysisOptions): Promise<void>
 
     /**
      * @returns The amount of duplicates among all uploaded images.
+     * #ai-api:photobook
      */
     getPhotobookDuplicateCount(): number
 
     /**
      * @returns The amount of screenshots among all uploaded images.
+     * #ai-api:photobook
      */
     getPhotobookScreenshotCount(): number
 
     /**
      * @returns The amount of "bad" images among all uploaded images that can be filtered out,
      * ie screenshots, duplicates, blurry images etc.
+     * #ai-api:photobook
      */
     getPhotobookFilteredCount(): number
 
@@ -4208,6 +4776,7 @@ export interface iPrintessApi {
      *
      * @param options Options for the photobook creation
      * @returns Preview of the image distribution
+     * #ai-api:photobook
      */
     getRenderClustersEstimation(options: iExternalPhotobookOptions): iPhotobookEstimation
 
@@ -4215,6 +4784,7 @@ export interface iPrintessApi {
      * Gets a collection of image clusters the way they would be distributed in a photobook when created with the provided options.
      *
      * @param options Options for the photobook creation
+     * #ai-api:photobook
      */
     getRenderClustersImages(options: iExternalPhotobookOptions): Promise<{ imageId: string; thumbUrl: string; }[][]>
 
@@ -4222,12 +4792,14 @@ export interface iPrintessApi {
      * Gets the image cluster for the cover the way it would be distributed in a photobook when created with the provided options.
      *
      * @param amount number of images for the cover layout
+     * #ai-api:photobook
      */
     getRenderClustersCoverImages(amount: number): Promise<{ imageId: string; thumbUrl: string; }[]>
 
     /**
-    * @returns True if any analyzed images are available for photobook creation, false otherwise.
-    */
+     * @returns True if any analyzed images are available for photobook creation, false otherwise.
+     * #ai-api:photobook
+     */
     hasCurPhotobookData(): boolean
 
     streamPrompt(prompt: string, onMessage: (message: string) => void, onFinished: () => void): Promise<void>;
@@ -4235,20 +4807,26 @@ export interface iPrintessApi {
     /**
      * Stream a prompt to Anthropic (Claude). Forwards text deltas to `onMessage` as they arrive
      * and calls `onFinished` once the stream completes, passing any skill-generated files.
+     *
+     * @param request.purpose What the prompt is used for. Defaults to `"Claude Design"` server-side.
+     *
+     * NEVER add an ai-api area tag to this method â€” not even the literal tag token inside this
+     * comment, which alone would emit it into core.d.ts. Document it here only.
      */
     streamAnthropicPrompt(
         request: {
             prompt: string,
-            model?: "opus-4.7" | "sonnet-4.6" | "haiku-4.5",
+            model?: "fable-5.0" | "opus-5.0" | "opus-4.8" | "opus-4.7" | "sonnet-4.6" | "haiku-4.5",
             skill?: string,
             maxTokens?: number,
             imageUrls?: string[],
             sessionId?: string,
-            containerId?: string
+            containerId?: string,
+            purpose?: "Claude Design" | "Script Creation"
         },
         onMessage: (message: string) => void,
         onFinished: (skillResults?: Array<{ filename: string, mimeType: string, encoding: "utf8" | "base64", data: string }>) => void
-    ): Promise<{ sessionId?: string, containerId?: string }>;
+    ): Promise<{ sessionId?: string, containerId?: string, aiCreditsUsed?: number }>;
 
     /** If claude design is available  */
     canUseClaudeDesign(): boolean
@@ -4266,6 +4844,7 @@ export interface iPrintessApi {
 
     /**
      * Imports Printess intermediate document format
+     * #ai-api:core
      */
     importTemplate(task: TemplateImportTask, options: TemplateImportOptions): Promise<void>
 
@@ -4279,13 +4858,18 @@ export interface iPrintessApi {
      */
     getLetterGeneratorMenuTitle(): string;
 
-    /** Provides access to the sample date of the template */
+    /**
+     * Provides access to the sample price data of the template.
+     * Only relevant for displaying test prices when `priceTestModeEnabled` is set.
+     * #ai-api:basket-pricing
+     */
     getSamplePriceData(): { priceTestModeEnabled: boolean, legalNotice: string, oldPrice: number, snippetPrices: Array<number>, priceCategories: { [key: string]: number }, basePrice: number, infoUrl: string, perPagePrice: number }
 
     /**
      * Renders proof Pdf(s) in the shop scenario.
      * You must allow this in the account portal first.
      * Normally shop access forbids any kind of production.
+     * #ai-api:basket-pricing
      */
     renderProofPdfs(): Promise<JobStatus>
 
@@ -4297,11 +4881,13 @@ export interface iPrintessApi {
 
     /**
      * Gets the currently configured maximum basket image width.
+     * #ai-api:basket-pricing
      */
     getMaxmimumBasketWidth(): number;
 
     /**
      * Gets the currently configured maximum basket image height.
+     * #ai-api:basket-pricing
      */
     getMaxmimumBasketHeight(): number;
 
@@ -4310,44 +4896,54 @@ export interface iPrintessApi {
      * Shows a dialog with headline and ok / cancel buttons.
      * Returns a container to render your own content in.
      * @param options Text and callback informations
-     * #ai-api
+     * #ai-api:custom-ui
      */
     openDialog(options: IGenericDialogOptions): Promise<HTMLDivElement>
 
     /**
      * Closes the dialog
-     * #ai-api
+     * #ai-api:custom-ui
      */
     closeDialog(): void
 
     /**
+     * Closes the currently open mobile overlay, in most cases the Form-Field overlay.
+     * Does nothing on desktop or when no mobile overlay is open.
+     * #ai-api:custom-ui
+     */
+    closeMobileOverlay(): void
+
+    /**
      * Disables all buttons of the dialog opened with openDialog()
-     * #ai-api
+     * #ai-api:custom-ui
      */
     disableDialogButtons(): void
 
     /**
      * Enables all buttons of the dialog opened with openDialog()
-     * #ai-api
+     * #ai-api:custom-ui
      */
     enableDialogButtons(): void
 
     /**
-     * Shows simple progress overlay
+     * Shows simple progress overlay. The fallback for a script that has to report progress with no
+     * dialog or panel open - a surface locks itself instead.
+     * #ai-api:custom-ui
      */
-    showProgress(message: string)
+    showProgress(message: string): void
 
     /**
      * hides progress overlay
+     * #ai-api:custom-ui
      */
-    hideProgress()
+    hideProgress(): void
 
     /**
      * Displays a dropdown Menu at the target position with the set menu items
      * @param e MouseEvent to get the target and mouse position
      * @param items Menu items that should be displayed
      */
-    showContextMenu(e: MouseEvent, items: Array<iExternalContextMenuItem>)
+    showContextMenu(e: MouseEvent, items: Array<iExternalContextMenuItem>): void
 
     /**
      * Selects Tab in Panel-Ui
@@ -4357,42 +4953,49 @@ export interface iPrintessApi {
 
     /**
      * Tells if current template has an animation-timeline
+     * #ai-api:viewport-zoom
      */
     hasAnimation(): boolean
 
     /**
      * Tells if animation-timeline is playing
+     * #ai-api:viewport-zoom
      */
     isAnimationPlaying(): boolean
 
     /**
      * Plays animation
+     * #ai-api:viewport-zoom
      */
     playAnimation(): Promise<void>
 
     /**
      * Stops animation
+     * #ai-api:viewport-zoom
      */
     stopAnimation(): Promise<void>
 
     /**
-     * Returns the specified animation as a single html-string including all ressource base64 encoded
+     * Returns the specified animation as a single html-string including all resources base64 encoded
      * You just need to store the string in a .html file to use it.
      * @param docIdOrName The document to render identified by id or name
      * @param spreadIndex The zero based spread index you want to render, defaults to 0 (first spread)
      * @param pxWidth The output width in pixel, defaults to the setup html-width of the animation. Max is 2000px, min is 100px
      * @returns { pxWidth: number, pxHeight: number, data: string } "data" contains the HTML.
+     * #ai-api:basket-pricing,viewport-zoom
      */
     getAnimationHtmlAsString(docIdOrName?: string, spreadIndex?: number, pxWidth?: number): Promise<{ pxWidth: number, pxHeight: number, data: string } | null>
 
     /**
-     * Reassign/change callbacks.
+     * Reassign/change callbacks originally set in `attachPrintess()`.
+     * #ai-api:core
      */
     setCallbacks(p: printessCallbacks): void;
 
     /**
-    * Reassign/change price category labels.
-    */
+     * Reassign/change price category labels.
+     * #ai-api:basket-pricing
+     */
     setPriceCategoryLabels(priceCategoryLabels: Record<string, string> | null): void;
 
     /**
@@ -4400,8 +5003,8 @@ export interface iPrintessApi {
      * Can be used to track changes.
      * When supplying `formFieldsToIgnore` it will filter out those form fields. Those are excluded from the hash generation.
      * Please note that this hash can change when used on different Printess Editor versions.
-     *
      * @param options Supports setting form field names to ignore during hash creation.
+     * #ai-api:core
      */
     generateContentHash(options?: { formFieldsToIgnore?: string[], ignoreAllFormFields?: boolean }): string;
 }
@@ -4812,6 +5415,10 @@ export interface iExternalProperty {
     position?: number;
     /** availaible for slim-ui only */
     title?: string;
+    /** Allowed font groups for a font property / font-list form field (slim-ui only) */
+    fontGroups?: string[];
+    /** Allowed color groups for a color property / color-list form field (slim-ui only) */
+    colorGroups?: string[];
 
     /** Used only by Slim UI to store values */
     onHiddenLayer?: boolean
@@ -4923,6 +5530,8 @@ export interface iExternalValidation {
     textTransform: "mixed" | "upper" | "lower"
     isMandatory: boolean;
     clearOnFocus: boolean;
+    /** Optional placeholder text shown while the field value is empty (textbox form fields only). */
+    placeholder?: string;
     noOffensiveLanguage: boolean;
     visibility: "always" | "conditional-on" | "conditional-off";
     htmlInputType: "text" | "password" | "email" | "number" | "tel" | "url" | "search" | "date" | "datetime-local" | "month" | "week" | "time";
@@ -5085,9 +5694,9 @@ export interface iExternalImageAiStore {
     iEAIU?: string[];
 }
 
-export type iExternalText2ImageModel = "SDXL" | "Flux Ultra" | "Flux Pro" | "Flux Dev" | "Flux Schnell" | "GPT Image 1" | "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2";
+export type iExternalText2ImageModel = "SDXL" | "Flux Ultra" | "Flux Pro" | "Flux Dev" | "Flux Schnell" | "GPT Image 1" | "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2" | "Ideogram 4";
 export type iExternalText2ImageBackground = "transparent" | "opaque" | "auto";
-export type iExternalImageEditModel = "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2" | "Flux Pro Kontext" | "Flux 2 Klein 4B";
+export type iExternalImageEditModel = "GPT ImageEdit" | "GPT Image 1.5" | "GPT Image 2" | "Nano Banana" | "Nano Banana Pro" | "Nano Banana 2" | "Flux Pro Kontext" | "Flux 2 Klein 4B" | "Ideogram 4";
 export type iExternalImageEditQuality = "low" | "medium" | "high";
 export type iExternalImageAssignAction = undefined | "fc-swap" | "bg-rm" | "bg-face" | "face-sticker" | "bg-sticker" | "contour-only" | "image-edit" | "sgm-any" | "sgm-any-sticker";
 export type iExternalImageSegmentModelModel = "Segment Anything" | "Segment Anything 3";
@@ -5149,20 +5758,16 @@ export interface iExternalError {
     errorValue2?: string | number,
     errorValue3?: string | number,
     errorValue4?: string,
-    errorType?: "text" | "image" | "table" | "book" | "step" | "snippet" | "ff-selection",
     errorIcon?: iconName
 }
-export type iErrorCode = "emptyError" | "user-canceled" | "customStepValidation" | "preflight" | "rowIndexLessThanZero" | "invalidDayValue" |
-    "imageResolutionLow" | "imageMissing" | "imageStillUploading" | "imageCouldNotUpload" | "textMissing" | "minTableEntries" | "maxTableEntries" |
-    "mandatoryTableCell" | "notChecked" | "notSelected" | "characterMissing" | "maxCharsExceeded" | "offensiveLanguageDetected" | "regExpNotMatching" |
-    "textOverflow" | "noLayoutSnippetSelected" | "invalidNumber" | "missingEventText" | "emptyBookPage" | "invalidPageCount" | "needMorePages" | "tooManyPages" |
-    "needMorePhotos" | "toManyPhotos";
+// Derived from the interface union below for single source of truth
+export type iErrorCode = iErrorType["errorCode"];
 
 export type iErrorType = iErrorImageResolutionLow | iErrorImageMissing | iErrorImageStillUploading | iErrorImageCouldNotUpload | iErrorEmpty | iErrorPreflight |
     iErrorUserCanceled | iErrorCustomStepValidation | iErrorEmptyBookPage | iErrorInvalidPageCount | iErrorNeedMorePages | iErrorTooManyPages | iErrorCharacterMissing |
     iErrorMaxChars | iErrorRegExpNotMatching | iErrorOffensiveLanguage | iErrorTextMissing | iErrorTextOverflow | iErrorNotSelected | iErrorNotChecked | iErrorNoLayoutSnippetSelected |
     iErrorMinTableEntries | iErrorMaxTableEntries | iErrorMandatoryTableCell | iErrorMissingEventText | iErrorInvalidNumber | iErrorInvalidDayValue | iErrorRowIndexLessThanZero |
-    iErrorNeedMorePhotos | iErrorToManyPhotos
+    iErrorNeedMorePhotos | iErrorTooManyPhotos
 
 export interface iExternalErrorDisplay {
     errorCode: iErrorCode,
@@ -5245,13 +5850,15 @@ export interface iErrorTooManyPages extends iExternalErrorDisplay {
 export interface iErrorNeedMorePhotos extends iExternalErrorDisplay {
     errorCode: "needMorePhotos",
     icon: "image",
-    min: number
+    min: number,
+    add: number
 }
 
-export interface iErrorToManyPhotos extends iExternalErrorDisplay {
-    errorCode: "toManyPhotos",
+export interface iErrorTooManyPhotos extends iExternalErrorDisplay {
+    errorCode: "tooManyPhotos",
     icon: "image",
-    max: number
+    max: number,
+    remove: number
 }
 
 export interface iErrorOffensiveLanguage extends iExternalErrorDisplay {
@@ -5531,6 +6138,7 @@ export interface iExternalImageGroupAnalysis {
     featureClusterPriority: number
     duplicateCluster: number
     duplicateSimilarity: number
+    similarityClusters: number[]
 }
 
 export interface iExternalPhotobookDocInfo {
@@ -5747,6 +6355,8 @@ export type iExternalProductPriceInfo = {
      * If a local table-form-field is used as data-source it returns the total numbers of records
      * in the output PDF. If a column "circulation" is present, it outputs the row "circulation" times.
      * Result is propably higher than the amount of records in the table-form-field
+     *
+     * In Single Photo Mode, printedRecordsCount is the total amount of prints produced.
      */
     printedRecordsCount: number,
 
@@ -6066,6 +6676,8 @@ export type iconName =
     | "lock-closed"
     | "lock-open"
     | "lock-closed-solid"
+    | "frame-lock-closed"
+    | "frame-lock-opened"
     | "user-lock-closed"
     | "user-lock-opened"
     | "link"
@@ -6283,4 +6895,5 @@ export type iconName =
     | "page-margin"
     | "border"
     | "heart"
+    | "paw"
     ;
