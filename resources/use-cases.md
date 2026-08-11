@@ -319,6 +319,106 @@ const onDialogButton = async () => {
 }
 ```
 
+## Saving and Loading Projects in Printess
+
+By setting up a few callbacks in your Printess load call, you can use Printess' internal load and save logic, without having to store all the data yourself.
+
+Users need to be able to log in to your shop in order to use this Save & Load system!
+
+
+`isShopUserLoggedInCallback` is used by Printess do determine whether a user is logged in or not. If no user is logged in, it will show a Login button in the Save and Load dialogs and prohibit any other action. Otherwise the user will be able to save their work and load their previously saved projects.
+
+`shopLoginCallback` will be called when a user clicks the Login button in Printess' UI and you should add the logic needed for your users to log in here.
+
+`getShopProjectDisplayNameCallback` will be called when the user clicks the Save button in the Printess UI and the saving dialog appears.
+
+`getShopDataCallback` is called when a user saves their current project and expects to receive any data from your shop system in the form of IShopData (see the resource **printess-editor.d.ts**).
+This data will be saved alongside the saved customisation state so any additional information that you need for your shop system should go here. This needs to include product information, so users can only save and load projects of the product they are currently editing.
+If your shop system uses product options that change depending on Printess customisation (such as Form Fields), you should also save that information here, so you will have an easier time selecting the correct variants on loading the saved project.
+
+`getShopSavedDataCallback` is thrown when a saved project is loaded by a user and gives you all the data you had saved with the `getShopDataCallback`.
+If the saved data contains any information on product variants for your shop system, you should read that info and select the according variants here.
+
+Here is a simple example implementation of this concept
+
+```html
+<body>
+  <div class="printess-owned">
+    <h1> If you can read this, the Editor is hidden </h1>
+    <button> Show Editor </button>
+  </div>
+</body>
+<script type="module">
+  const printessLoader = await import("https://editor.printess.com/printess-editor/loader.js");
+
+  let savedState = "";
+
+  let loggedIn = false;
+  const userId = "uniqueUserId";
+
+  // product is of type IProduct (see printess-editor.d.ts)
+  const product = {
+    id: "1",
+  }
+
+  // shopData is of type IShopData (see printess-editor.d.ts)
+  const shopData = {
+    shopId: "myShop",
+    shopUserId: userId,
+    product: product,
+  }
+
+  const onBack = (saveToken, thumbnailUrl) => {
+    savedState = saveToken;
+    if(printessApi) {
+      printessApi.ui.hide();
+    }
+  }
+
+  const onBasket = (saveToken, thumbnailUrl) => {
+    alert(`Cast it in the Basket! \nSave Token: \n${saveToken} \nThumbnail \n${thumbnailUrl}`);
+
+    try {
+      // Call your backend to send the saveToken to production and close the editor
+      ui?.hide()
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+
+  const printessApi = await printessLoader.load({
+      token: "[your-shop-token]",
+      templateName: "Phone-Case",
+      templateVersion: "published",
+      backButtonCallback: onBack,
+      addToBasketCallback: onBasket,
+      isShopUserLoggedInCallback: () => {
+        return loggedIn;
+      },
+      getShopDataCallback: () => {
+        return shopData;
+      },
+      shopLoginCallback: () => {
+        loggedIn = true;
+      },
+      getShopSavedDataCallback: (savedData) => {
+        alert("getShopSavedDataCallback", savedData);
+      },
+      getShopProjectDisplayNameCallback: () => {
+        // you could create your own project naming dialog here
+      }
+  });
+
+  const showButton = document.querySelector("button");
+  showButton.addEventListener("click", () => {
+    printessApi.api.load(savedState);
+    printessApi.ui.show();
+  })
+
+</script>
+```
+
 ## Photobook settings
 
 The Photobook comes with a variety of settings which are unique to it, which is why we gave it its own interface to set them: `adjustBook()`.
