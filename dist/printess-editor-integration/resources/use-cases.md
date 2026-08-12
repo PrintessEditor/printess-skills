@@ -322,6 +322,7 @@ const onDialogButton = async () => {
 ## Saving and Loading Projects in Printess
 
 By setting up a few callbacks in your Printess load call, you can use Printess' internal load and save logic, without having to store all the data yourself.
+You will need to implement **all** of the callbacks below in order for the Save & Load buttons to appear!
 
 Users need to be able to log in to your shop in order to use this Save & Load system!
 
