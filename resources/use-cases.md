@@ -326,6 +326,7 @@ You will need to implement **all** of the callbacks below in order for the Save 
 
 Users need to be able to log in to your shop in order to use this Save & Load system!
 
+!!! IMPORTANT !!! You need to use the callback names **exactly** like they are specified below and in the example. The listed callbacks are the MINIMAL VIABLE SOLUTION, if any of the 5 callbacks below is missing or named wrongly, the native saving **will not work**!
 
 `isShopUserLoggedInCallback` is used by Printess do determine whether a user is logged in or not. If no user is logged in, it will show a Login button in the Save and Load dialogs and prohibit any other action. Otherwise the user will be able to save their work and load their previously saved projects.
 
